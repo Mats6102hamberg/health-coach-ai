@@ -17,6 +17,19 @@ type ApiResponse<T = any> =
   | { ok: false; error: string; code: string }
 
 // ============================================================================
+// HELPERS
+// ============================================================================
+
+/**
+ * Convert YYYY-MM-DD string to UTC Date at start of day
+ * Robust date handling to avoid timezone issues
+ */
+function dayKeyToUTCDate(dateString: string): Date {
+  const [year, month, day] = dateString.split('-').map(Number)
+  return new Date(Date.UTC(year, month - 1, day, 0, 0, 0, 0))
+}
+
+// ============================================================================
 // ACTION HANDLERS
 // ============================================================================
 
@@ -124,8 +137,7 @@ async function handleDailyLogUpsert(userId: string, payload: any): Promise<ApiRe
   }
 
   try {
-    const date = new Date(parsed.data.date)
-    date.setHours(0, 0, 0, 0) // Normalize to start of day
+    const date = dayKeyToUTCDate(parsed.data.date)
 
     const log = await prisma.dailyLog.upsert({
       where: {
@@ -171,11 +183,10 @@ async function handleDailyLogGetRange(userId: string, payload: any): Promise<Api
   }
 
   try {
-    const fromDate = new Date(parsed.data.from)
-    fromDate.setHours(0, 0, 0, 0)
-    
-    const toDate = new Date(parsed.data.to)
-    toDate.setHours(23, 59, 59, 999)
+    const fromDate = dayKeyToUTCDate(parsed.data.from)
+    const toDate = dayKeyToUTCDate(parsed.data.to)
+    // Set toDate to end of day
+    toDate.setUTCHours(23, 59, 59, 999)
 
     const logs = await prisma.dailyLog.findMany({
       where: {

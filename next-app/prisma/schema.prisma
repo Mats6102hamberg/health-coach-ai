@@ -18,7 +18,6 @@ model User {
   activityLogs ActivityLog[]
   mealLogs     MealLog[]
   alerts       Alert[]
-  dailyLogs    DailyLog[]
 }
 
 model WeightLog {
@@ -104,8 +103,6 @@ model DailyLog {
   heartRateAvg Int?
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, date])
   @@index([userId])
