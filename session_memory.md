@@ -13,59 +13,70 @@ En React/Tailwind-baserad hälsoapp ("HälsoPartner AI") med AI-coaching, vikt- 
 
 ---
 
-## Senaste sessionen (2026-01-13 - Session 2)
+## Senaste sessionen (2026-01-13 - Förmiddag)
 ### Vad vi gjorde
-- [x] Fixade ESLint-konfiguration för Next.js 16
-- [x] Verifierade TypeScript-kompilering (inga fel)
-- [x] Bekräftade Tailwind 4-konfiguration (CSS-baserad, ingen config-fil behövs)
-- [x] Implementerade PWA-stöd i layout.tsx (service worker-registrering, manifest-länk)
-- [x] Flyttade viewport och themeColor till separat export enligt Next.js 16 best practices
-- [x] Uppdaterade service worker för Next.js-paths (v3)
-- [x] Verifierade production build (fungerar utan fel)
-- [x] Startade dev-server (http://localhost:3000)
-- [x] Skapade SESSION_SUMMARY.md som Source of Truth
-- [x] Uppdaterade README.md enligt Universal README-mall
+- [x] Implementerade DailyLog-modell i Prisma schema (DateTime för date-fält)
+- [x] Tog bort User-relation från DailyLog (Clerk-kompatibel, endast userId string)
+- [x] Körde Prisma-migrationer (add_daily_log, remove_user_relation)
+- [x] Uppdaterade Boris API för att använda DailyLog-modellen
+- [x] Implementerade robust date handling (dayKeyToUTCDate helper)
+- [x] Fixade textsynlighet i Boris textarea (text-gray-900)
+- [x] Implementerade röstinput för Boris (useSpeechRecognition hook)
+- [x] Lade till mikrofon-knapp med visuell feedback (pulserar när lyssnar)
+- [x] Skapade CODEMAP.md - komplett projektöversikt på svenska
+- [x] Pushade alla ändringar till GitHub
 
 ### Beslut (varför vi valde X)
-- Beslut: Använd Next.js standard ESLint-config istället för custom FlatCompat
-  - Orsak: Enklare, mer maintainable, fungerar out-of-the-box med Next.js 16
-  - Alternativ som avfärdades: Custom ESLint-config med FlatCompat (för komplex, circular dependency-fel)
+- Beslut: DailyLog utan User-relation (endast userId string)
+  - Orsak: Clerk används för auth, ingen Prisma User-tabell som matchar Clerk
+  - userId är en string från Clerk, inte en Prisma-relation
+  - Alternativ som avfärdades: Prisma User-relation (fungerar inte med Clerk)
 
-- Beslut: Tailwind 4 utan separat config-fil
-  - Orsak: Tailwind 4 använder CSS-baserad konfiguration via `@import "tailwindcss"`
-  - Detta är Tailwind 4-standarden - ingen JS-config behövs
+- Beslut: DateTime istället för String för date-fält
+  - Orsak: Bättre datatyp, enklare queries, timezone-hantering
+  - Implementerade dayKeyToUTCDate helper för robust date conversion
+  - Alternativ som avfärdades: String-datum (svårare att hantera, timezone-problem)
 
-- Beslut: Service Worker-registrering via next/script
-  - Orsak: Next.js-rekommenderad metod för client-side scripts
-  - Alternativ som avfärdades: Custom _document.tsx (deprecated i App Router)
+- Beslut: Web Speech API för röstinput
+  - Orsak: Native browser API, fungerar utan externa dependencies
+  - Svenska språket (sv-SE) stöds
+  - Alternativ som avfärdades: Externa speech-to-text API:er (kostnad, komplexitet)
 
-- Beslut: Viewport i separat export
-  - Orsak: Next.js 16 API-krav, eliminerar build-varningar
-  - Följer Next.js best practices
+- Beslut: Unified Boris API endpoint (/api/boris)
+  - Orsak: Vercel Hobby-plan har begränsat antal serverless functions
+  - En endpoint med action router istället för många endpoints
+  - Enklare att underhålla och dokumentera
 
 ### Problem vi såg
-- ✅ ESLint körde på gamla Vite-filer → Fixat med korrekt config
-- ✅ Metadata-varningar för viewport/themeColor → Fixat med separat viewport-export
-- ⚠️ Recharts-varning vid SSR (rendering-varning, påverkar inte funktionalitet)
+- ✅ User-relation i DailyLog → Fixat genom att ta bort relation och köra migration
+- ✅ Text i Boris textarea knappt synlig → Fixat med text-gray-900
+- ✅ TypeScript-fel i useSpeechRecognition → Fixat genom att korrigera interface-typer
+- ⚠️ IDE visar Prisma-fel tills Prisma Client genereras om (normalt beteende)
 
 ### Lärdomar
-- Next.js 16 har striktare metadata-API än tidigare versioner
-- Tailwind 4 är fundamentalt annorlunda än v3 (CSS-baserad config)
-- TypeScript-kompilering kan fungera även om ESLint-config är trasig
-- Dokumentation (SESSION_SUMMARY.md) är kritisk för kontinuitet mellan sessioner
+- Clerk och Prisma User-relationer fungerar inte tillsammans - använd endast userId string
+- Prisma-migrationer måste köras för att ta bort foreign keys från databasen
+- Web Speech API fungerar utmärkt för svenska röstinput
+- Visuell feedback (pulsering, färgändringar) är viktig för röstinput UX
+- CODEMAP.md är ovärderlig för att förstå projektstruktur
 
 ---
 
 ## Pågående arbete (Work in progress)
-- Nu bygger vi: Backend-implementation med Prisma + Neon Postgres
-- Nästa tekniska del: API-routes för user, weight, activity, ai-coach enligt Quality Gate
-- Risk/Osäkerhet: Inga AI-nycklar konfigurerade ännu, autentisering saknas
+- Nu har vi: Komplett hälsoapp med Boris AI, röstinput, streak-system, stepmätare, hälsomål
+- Nästa tekniska del: Clerk authentication för Vercel-deployment
+- Risk/Osäkerhet: AI-nycklar behöver konfigureras för produktion, Clerk setup krävs
 
 ---
 
 ## Idéer och framtida funktioner (Backlog)
-- Konsolidera AI-funktioner (coaching, matanalys, mål) i modulära komponenter
-- Implementera backend/API-stöd för användardata och autentisering
+- Implementera Clerk authentication för produktion
+- Konfigurera AI-nycklar för Vercel deployment
+- Lägg till smeknamn i Boris personlighet
+- Fler achievements och streak-milstolpar
+- Veckosammanfattningar från Boris
+- Push-notifikationer för dagliga påminnelser
+- Dela framsteg på sociala medier
 
 ---
 

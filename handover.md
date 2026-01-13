@@ -11,32 +11,44 @@ Appen är klar när:
 
 ## 2) Nuläget (State of the Union)
 ### Fungerar
-- ✅ Next.js 16 + React 19 + Tailwind 4 UI med statisk demodata
+- ✅ Next.js 16 + React 19 + Tailwind 4 komplett hälsoapp
+- ✅ Boris AI-coach med OpenAI/Claude/Gemini integration
+- ✅ Röstinput till Boris (Web Speech API, svenska)
+- ✅ Streak-system med XP, nivåer och achievements
+- ✅ Stepmätare med Web Motion API
+- ✅ Hälsomål (steg, vatten, kalorier, aktiva minuter, träning, hjärtfrekvens, sömn)
+- ✅ Konfetti-animation och glädjetjut vid framsteg
 - ✅ Recharts-grafer för viktprogress och aktivteter
+- ✅ Prisma + Neon Postgres backend (DailyLog, WeightLog, ActivityLog, MealLog, Alert)
+- ✅ Boris API unified endpoint (/api/boris) med 10 actions
 - ✅ PWA-stöd (service worker + manifest)
-- ✅ TypeScript-kompilering utan fel
-- ✅ Production build fungerar
-- ✅ Dokumentationsflöde (SESSION_SUMMARY.md, session_memory.md, handover.md, README.md)
+- ✅ CODEMAP.md - komplett projektöversikt på svenska
+- ✅ Lokalt fungerar perfekt på http://localhost:3000
 
 ### Delvis klart
-- ⚠️ AI-integrationer (kod finns, men inga API-nycklar konfigurerade)
+- ⚠️ AI-integrationer (fungerar lokalt, behöver konfigureras för Vercel)
+- ⚠️ Clerk authentication (backend förberett, frontend setup saknas)
 
 ### Saknas
-- ❌ Backend/API med Prisma + Neon Postgres
-- ❌ Autentisering (Clerk eller NextAuth.js)
-- ❌ Automated tester och kvalitetsprocesser
-- ❌ Vercel deployment
+- ❌ Clerk frontend setup för Vercel-deployment
+- ❌ AI-nycklar konfigurerade i Vercel
+- ❌ Automated tester
+- ❌ Vercel deployment med auth
 
 ---
 
 ## 3) Tekniska nycklar (Stack & Setup)
 ### Stack
 - Frontend: Next.js 16 (App Router) + React 19 + TypeScript + Tailwind 4 + Recharts
-- Backend: Ej implementerat (planerat: Next.js API routes + Server Actions)
-- Databas: Neon Postgres (planerad)
-- ORM: Prisma (planerad)
-- Auth: Ej implementerad (planerad: Clerk eller NextAuth.js)
-- Hosting/Deploy: Vercel (planerad)
+- Backend: Next.js API routes ✅ (/api/boris, /api/ai-coach, /api/weight, /api/activity, /api/meals)
+- Databas: Neon Postgres ✅ (PostgreSQL)
+- ORM: Prisma ✅ (DailyLog, WeightLog, ActivityLog, MealLog, Alert, User)
+- Auth: Clerk (backend förberett ✅, frontend setup saknas ❌)
+- AI: OpenAI GPT-4 + Anthropic Claude + Google Gemini ✅
+- Röstinput: Web Speech API ✅ (svenska)
+- Stepmätare: Web Motion API ✅
+- Ljud: Web Audio API ✅
+- Hosting/Deploy: Vercel (lokalt fungerar ✅, production deployment saknas ❌)
 - PWA: Service Worker + Manifest ✅
 
 ### Lokalt (hur man kör projektet)
@@ -46,37 +58,54 @@ Appen är klar när:
 4. Öppna: http://localhost:3000
 
 ### Miljövariabler som krävs
-- `OPENAI_API_KEY` (för AI-funktioner, ej nyttjad än)
-- `DATABASE_URL` (Neon Postgres, ej nyttjad än)
-- `NEXT_PUBLIC_...` (framtida publika nycklar)
+**Lokalt (.env):**
+- `DATABASE_URL` - Neon Postgres connection string ✅
+- `OPENAI_API_KEY` - OpenAI GPT-4 ✅
+- `ANTHROPIC_API_KEY` - Claude ✅
+- `GOOGLE_API_KEY` - Gemini ✅
+
+**Vercel (production):**
+- `DATABASE_URL` - Neon Postgres ❌
+- `OPENAI_API_KEY` ❌
+- `ANTHROPIC_API_KEY` ❌
+- `GOOGLE_API_KEY` ❌
+- `CLERK_SECRET_KEY` ❌
+- `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` ❌
 
 > OBS: skriv aldrig in hemliga nycklar i denna fil.
 
 ---
 
-## 4) “Sista milen”-checklista
+## 4) "Sista milen"-checklista
 - [x] Skapa SESSION_SUMMARY.md med aktuell status
 - [x] Färdigställ Next.js-migrering (ESLint, Tailwind 4, PWA)
-- [ ] Implementera backend/API + Prisma mot Neon
-- [ ] Implementera autentisering
-- [ ] Säkra deployment och kvalitetstester (Quality Gate)
-- [ ] Deploy till Vercel
+- [x] Implementera backend/API + Prisma mot Neon
+- [x] Implementera Boris AI med röstinput
+- [x] Implementera streak-system med gamification
+- [x] Implementera stepmätare och hälsomål
+- [x] Skapa CODEMAP.md med projektöversikt
+- [ ] Implementera Clerk authentication (frontend)
+- [ ] Konfigurera miljövariabler i Vercel
+- [ ] Deploy till Vercel med auth
+- [ ] Testa production deployment
 
 ---
 
 ## 5) Kända risker / beslut
-- Risk: Avsaknad av backend gör att UI visar statiska data
-- Risk: Inga AI-nycklar konfigurerade → AI-funktioner fungerar inte
+- Risk: Clerk frontend setup saknas → Vercel deployment fungerar inte med auth
+- Risk: AI-nycklar behöver konfigureras i Vercel → Boris fungerar inte i production
 - Risk: Service Worker cache-strategi kan cacha gamla versioner
-- Beslut: Färdigställ Next.js-migrering innan backend-implementation
+- Beslut: DailyLog utan User-relation (Clerk-kompatibel)
+- Beslut: Unified Boris API endpoint (/api/boris) för Vercel Hobby-plan
+- Beslut: Web Speech API för röstinput (native, gratis, svenska)
+- Beslut: DateTime istället för String för date-fält (robust date handling)
 - Beslut: Använd Tailwind 4 CSS-baserad config (ingen JS-config)
-- Beslut: Använd Next.js standard ESLint-config
-- Tekniskt skuld: Ingen autentisering, inga testsuiter ännu
+- Tekniskt skuld: Ingen Clerk frontend setup, inga automated tester
 
 **Estimat nästa steg:**
-- Backend/API-implementation: 3-4 timmar
-- Autentisering: 2-3 timmar
-- Vercel deployment: 30 min
+- Clerk frontend setup: 1-2 timmar
+- Vercel miljövariabler: 30 min
+- Vercel deployment + test: 1 timme
 
 **Kontaktperson:** Mats Hamberg  
 **SLA/Deadlines:** Ej definierat
