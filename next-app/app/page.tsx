@@ -667,7 +667,7 @@ export default function HealthApp() {
                   onChange={(e) => setAiMessage(e.target.value)}
                   placeholder="Ge mig matråd för idag... / Vad tycker Boris om min träning?"
                   rows={4}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent text-gray-900 placeholder:text-gray-400"
                 />
               </div>
               <button
