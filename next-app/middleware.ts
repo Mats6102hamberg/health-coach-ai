@@ -3,7 +3,6 @@ import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server'
 const isPublicRoute = createRouteMatcher([
   '/sign-in(.*)',
   '/sign-up(.*)',
-  '/api/boris(.*)', // Boris API health check is public
 ])
 
 export default clerkMiddleware(async (auth, request) => {
