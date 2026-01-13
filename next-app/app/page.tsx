@@ -216,7 +216,7 @@ export default function HealthApp() {
                 {tab === 'weight' && '⚖️ Vikt'}
                 {tab === 'activity' && '🏃 Aktivitet'}
                 {tab === 'food' && '🍎 Mat'}
-                {tab === 'ai' && '🤖 AI Coach'}
+                {tab === 'ai' && '🎩 Boris'}
               </button>
             ))}
           </div>
@@ -483,22 +483,25 @@ export default function HealthApp() {
           </div>
         )}
 
-        {/* AI Coach Tab */}
+        {/* Boris AI Coach Tab */}
         {currentTab === 'ai' && (
           <div className="bg-white rounded-2xl shadow-xl p-6">
             <div className="flex items-center gap-3 mb-6">
-              <MessageCircle className="text-purple-600" size={24} />
-              <h2 className="text-2xl font-bold text-gray-800">AI Coach</h2>
+              <span className="text-4xl">🎩</span>
+              <div>
+                <h2 className="text-2xl font-bold text-gray-800">Boris - Din AI-Coach</h2>
+                <p className="text-sm text-gray-600">Boris pratar alltid i tredje person och ger personliga råd!</p>
+              </div>
             </div>
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Fråga din AI-coach
+                  Fråga Boris
                 </label>
                 <textarea
                   value={aiMessage}
                   onChange={(e) => setAiMessage(e.target.value)}
-                  placeholder="Ge mig råd om min träning idag..."
+                  placeholder="Ge mig matråd för idag... / Vad tycker Boris om min träning?"
                   rows={4}
                   className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                 />
@@ -506,27 +509,32 @@ export default function HealthApp() {
               <button
                 onClick={handleAskAI}
                 disabled={!aiMessage || aiLoading}
-                className="w-full bg-purple-600 text-white py-3 rounded-xl font-medium hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                className="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white py-3 rounded-xl font-medium hover:from-purple-700 hover:to-pink-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
                 {aiLoading ? (
                   <>
                     <Loader2 className="w-5 h-5 animate-spin" />
-                    AI tänker...
+                    Boris tänker...
                   </>
                 ) : (
                   <>
-                    <MessageCircle size={20} />
-                    Fråga AI Coach
+                    <span className="text-xl">🎩</span>
+                    Fråga Boris
                   </>
                 )}
               </button>
             </div>
 
-            <div className="mt-8 p-4 bg-purple-50 rounded-xl">
-              <p className="text-sm text-purple-800">
-                💡 <strong>Tips:</strong> AI-coachen använder din viktdata, aktiviteter och måltider för att ge
-                personliga råd. Ju mer data du loggar, desto bättre råd får du!
+            <div className="mt-8 p-4 bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl border-2 border-purple-200">
+              <p className="text-sm text-purple-900 font-medium mb-2">
+                🎩 <strong>Om Boris:</strong>
               </p>
+              <ul className="text-sm text-purple-800 space-y-1 ml-4">
+                <li>• Boris pratar alltid om sig själv i tredje person</li>
+                <li>• Boris ger konkreta råd med exakta mängder och tider</li>
+                <li>• Boris tycker att du är väl unnt en promenad på 1000 meter!</li>
+                <li>• Boris använder din viktdata och aktiviteter för personliga tips</li>
+              </ul>
             </div>
           </div>
         )}
