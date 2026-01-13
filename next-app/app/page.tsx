@@ -11,6 +11,7 @@ import { useAICoach } from '@/lib/hooks/useAICoach';
 import { useStreak } from '@/lib/hooks/useStreak';
 import { useStepCounter } from '@/lib/hooks/useStepCounter';
 import { useHealthGoals } from '@/lib/hooks/useHealthGoals';
+import { useCelebrationSounds } from '@/lib/hooks/useCelebrationSounds';
 import { Confetti } from '@/components/Confetti';
 import { SuccessToast } from '@/components/SuccessToast';
 import { HealthDashboard } from '@/components/HealthDashboard';
@@ -47,6 +48,7 @@ export default function HealthApp() {
   // Health tracking hooks
   const { stepData, isTracking, startTracking, stopTracking, addSteps } = useStepCounter();
   const { goals, progress, updateProgress, addWater, addWorkout, updateHeartRate, updateSleep } = useHealthGoals(userId || undefined);
+  const { celebrate, checkWeightLoss, checkHealthyMeal, checkGoalReached, checkStreakMilestone, checkGoodHeartRate, checkGoodSleep } = useCelebrationSounds();
 
   // Initialize user
   useEffect(() => {
@@ -68,6 +70,18 @@ export default function HealthApp() {
         calories: stepData.calories,
         activeMinutes: stepData.activeMinutes,
       });
+      
+      // Check if steps goal reached
+      const stepsProgress = Math.round((stepData.steps / goals.dailySteps) * 100);
+      if (stepsProgress >= 100 && stepData.steps >= goals.dailySteps) {
+        const celebration = celebrate('steps_goal');
+        if (celebration) {
+          setShowConfetti(true);
+          setToastMessage(celebration.message);
+          setToastIcon(celebration.emoji);
+          setShowToast(true);
+        }
+      }
     }
   }, [stepData]);
 
@@ -87,17 +101,35 @@ export default function HealthApp() {
   // Handlers
   const handleAddWeight = async () => {
     if (!userId || !weightInput) return;
-    await addWeightLog(userId, parseFloat(weightInput));
+    
+    const previousWeight = weightLogs.length > 0 ? weightLogs[0].weight : undefined;
+    const currentWeight = parseFloat(weightInput);
+    
+    await addWeightLog(userId, currentWeight);
     setWeightInput('');
     mutateWeight();
     
+    // Check for weight loss celebration
+    const celebration = checkWeightLoss(currentWeight, previousWeight);
+    if (celebration) {
+      setShowConfetti(true);
+      setToastMessage(celebration.message);
+      setToastIcon(celebration.emoji);
+      setShowToast(true);
+    }
+    
     const streakData = updateStreak();
     if (streakData?.isNewLog) {
-      setShowConfetti(true);
-      setToastMessage('Vikt loggad!');
-      setToastIcon('⚖️');
+      if (!celebration) {
+        setShowConfetti(true);
+        setToastMessage('Vikt loggad!');
+        setToastIcon('⚖️');
+      }
       setEarnedXP(10 + (streakData.currentStreak * 2));
       setShowToast(true);
+      
+      // Check streak milestone
+      checkStreakMilestone(streakData.currentStreak);
     }
   };
 
@@ -120,16 +152,29 @@ export default function HealthApp() {
 
   const handleAddMeal = async () => {
     if (!userId || !foodName || !foodCalories) return;
-    await addMealLog(userId, 'Måltid', foodName, parseInt(foodCalories));
+    
+    const calories = parseInt(foodCalories);
+    await addMealLog(userId, 'Måltid', foodName, calories);
     setFoodName('');
     setFoodCalories('');
     mutateMeal();
     
+    // Check for healthy meal celebration
+    const celebration = checkHealthyMeal(calories);
+    if (celebration) {
+      setShowConfetti(true);
+      setToastMessage(celebration.message);
+      setToastIcon(celebration.emoji);
+      setShowToast(true);
+    }
+    
     const streakData = updateStreak();
     if (streakData?.isNewLog) {
-      setShowConfetti(true);
-      setToastMessage('Måltid loggad!');
-      setToastIcon('🍽️');
+      if (!celebration) {
+        setShowConfetti(true);
+        setToastMessage('Måltid loggad!');
+        setToastIcon('🍽️');
+      }
       setEarnedXP(10 + (streakData.currentStreak * 2));
       setShowToast(true);
     }
@@ -413,6 +458,15 @@ export default function HealthApp() {
               onAddWater={addWater}
               onUpdateHeartRate={updateHeartRate}
               onUpdateSleep={updateSleep}
+              onGoalReached={(type) => {
+                const celebration = celebrate(type as any);
+                if (celebration) {
+                  setShowConfetti(true);
+                  setToastMessage(celebration.message);
+                  setToastIcon(celebration.emoji);
+                  setShowToast(true);
+                }
+              }}
             />
           </div>
         )}

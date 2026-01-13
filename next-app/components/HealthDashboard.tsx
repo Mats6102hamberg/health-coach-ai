@@ -23,9 +23,10 @@ interface HealthDashboardProps {
   onAddWater: () => void
   onUpdateHeartRate: (hr: number) => void
   onUpdateSleep: (hours: number) => void
+  onGoalReached?: (type: string) => void
 }
 
-export function HealthDashboard({ goals, progress, onAddWater, onUpdateHeartRate, onUpdateSleep }: HealthDashboardProps) {
+export function HealthDashboard({ goals, progress, onAddWater, onUpdateHeartRate, onUpdateSleep, onGoalReached }: HealthDashboardProps) {
   const [heartRateInput, setHeartRateInput] = useState('')
   const [sleepInput, setSleepInput] = useState('')
 
@@ -41,6 +42,28 @@ export function HealthDashboard({ goals, progress, onAddWater, onUpdateHeartRate
   const activeProgress = Math.min(100, Math.round((progress.activeMinutes / goals.dailyActiveMinutes) * 100))
   const waterProgress = Math.min(100, Math.round((progress.waterGlasses / goals.dailyWaterGlasses) * 100))
   const workoutProgress = Math.min(100, Math.round((progress.workoutsThisWeek / goals.weeklyWorkouts) * 100))
+
+  const handleAddWater = () => {
+    onAddWater()
+    const newProgress = Math.min(100, Math.round(((progress.waterGlasses + 1) / goals.dailyWaterGlasses) * 100))
+    if (newProgress >= 100 && onGoalReached) {
+      onGoalReached('water_goal')
+    }
+  }
+
+  const handleUpdateHeartRate = (hr: number) => {
+    onUpdateHeartRate(hr)
+    if (hr >= 60 && hr <= 80 && onGoalReached) {
+      onGoalReached('good_heart_rate')
+    }
+  }
+
+  const handleUpdateSleep = (hours: number) => {
+    onUpdateSleep(hours)
+    if (hours >= 7 && hours <= 9 && onGoalReached) {
+      onGoalReached('good_sleep')
+    }
+  }
 
   return (
     <div className="space-y-6">
