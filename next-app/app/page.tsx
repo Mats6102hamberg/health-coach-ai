@@ -2,15 +2,18 @@
 
 import { useState, useEffect } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar } from 'recharts';
-import { TrendingDown, Activity, Apple, MessageCircle, Plus, Loader2 } from 'lucide-react';
+import { TrendingDown, Activity, Apple, MessageCircle, Plus, Loader2, Heart } from 'lucide-react';
 import { useUser, createUser } from '@/lib/hooks/useUser';
 import { useWeightLogs, addWeightLog } from '@/lib/hooks/useWeight';
 import { useActivityLogs, addActivityLog } from '@/lib/hooks/useActivity';
 import { useMealLogs, addMealLog } from '@/lib/hooks/useMeal';
 import { useAICoach } from '@/lib/hooks/useAICoach';
 import { useStreak } from '@/lib/hooks/useStreak';
+import { useStepCounter } from '@/lib/hooks/useStepCounter';
+import { useHealthGoals } from '@/lib/hooks/useHealthGoals';
 import { Confetti } from '@/components/Confetti';
 import { SuccessToast } from '@/components/SuccessToast';
+import { HealthDashboard } from '@/components/HealthDashboard';
 
 const DEMO_USER_EMAIL = 'mats@halsopartner.se';
 
@@ -40,6 +43,10 @@ export default function HealthApp() {
   const { mealLogs, isLoading: mealLoading, mutate: mutateMeal } = useMealLogs(userId || undefined);
   const { askAI, isLoading: aiLoading } = useAICoach();
   const { streak, updateStreak, getAchievements } = useStreak(userId || undefined);
+  
+  // Health tracking hooks
+  const { stepData, isTracking, startTracking, stopTracking, addSteps } = useStepCounter();
+  const { goals, progress, updateProgress, addWater, addWorkout, updateHeartRate, updateSleep } = useHealthGoals(userId || undefined);
 
   // Initialize user
   useEffect(() => {
@@ -52,6 +59,17 @@ export default function HealthApp() {
       });
     }
   }, [user, userLoading, mutateUser]);
+
+  // Sync step data with health progress
+  useEffect(() => {
+    if (stepData.steps > 0) {
+      updateProgress({
+        steps: stepData.steps,
+        calories: stepData.calories,
+        activeMinutes: stepData.activeMinutes,
+      });
+    }
+  }, [stepData]);
 
   // Prepare chart data
   const weightChartData = weightLogs.map((log: any) => ({
@@ -202,17 +220,18 @@ export default function HealthApp() {
         {/* Navigation */}
         <div className="bg-white rounded-2xl shadow-xl p-4 mb-6">
           <div className="flex gap-2 overflow-x-auto">
-            {['dashboard', 'weight', 'activity', 'food', 'ai'].map((tab) => (
+            {['dashboard', 'health', 'weight', 'activity', 'food', 'ai'].map((tab) => (
               <button
                 key={tab}
                 onClick={() => setCurrentTab(tab)}
-                className={`px-6 py-3 rounded-xl font-medium transition-all ${
+                className={`px-6 py-3 rounded-xl font-medium transition-all whitespace-nowrap ${
                   currentTab === tab
                     ? 'bg-blue-600 text-white shadow-lg'
                     : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                 }`}
               >
                 {tab === 'dashboard' && '📊 Dashboard'}
+                {tab === 'health' && '❤️ Hälsa'}
                 {tab === 'weight' && '⚖️ Vikt'}
                 {tab === 'activity' && '🏃 Aktivitet'}
                 {tab === 'food' && '🍎 Mat'}
@@ -304,6 +323,97 @@ export default function HealthApp() {
                 <p className="text-gray-500 text-center py-12">Inga måltider loggade ännu. Lägg till din första måltid!</p>
               )}
             </div>
+          </div>
+        )}
+
+        {/* Health Tab - Google Fit Style */}
+        {currentTab === 'health' && (
+          <div className="space-y-6">
+            {/* Step Counter Widget */}
+            <div className="bg-white rounded-2xl shadow-xl p-6">
+              <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center gap-3">
+                  <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-full flex items-center justify-center">
+                    <span className="text-3xl">👟</span>
+                  </div>
+                  <div>
+                    <h2 className="text-2xl font-bold text-gray-800">Stepmätare</h2>
+                    <p className="text-sm text-gray-600">Dagens steg och aktivitet</p>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <p className="text-4xl font-bold text-blue-600">{stepData.steps.toLocaleString()}</p>
+                  <p className="text-sm text-gray-600">steg idag</p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-3 gap-4 mb-6">
+                <div className="text-center p-4 bg-gradient-to-br from-orange-50 to-red-50 rounded-xl">
+                  <p className="text-sm text-gray-600 mb-1">Distans</p>
+                  <p className="text-2xl font-bold text-orange-600">{stepData.distance.toFixed(2)} km</p>
+                </div>
+                <div className="text-center p-4 bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl">
+                  <p className="text-sm text-gray-600 mb-1">Kalorier</p>
+                  <p className="text-2xl font-bold text-green-600">{Math.round(stepData.calories)}</p>
+                </div>
+                <div className="text-center p-4 bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl">
+                  <p className="text-sm text-gray-600 mb-1">Aktiv tid</p>
+                  <p className="text-2xl font-bold text-purple-600">{stepData.activeMinutes} min</p>
+                </div>
+              </div>
+
+              <div className="flex gap-3">
+                <button
+                  onClick={startTracking}
+                  disabled={isTracking}
+                  className="flex-1 bg-gradient-to-r from-blue-600 to-cyan-600 text-white py-3 rounded-xl font-medium hover:from-blue-700 hover:to-cyan-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {isTracking ? '✓ Tracking aktiv' : 'Starta tracking'}
+                </button>
+                <button
+                  onClick={stopTracking}
+                  disabled={!isTracking}
+                  className="flex-1 bg-gray-600 text-white py-3 rounded-xl font-medium hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Stoppa
+                </button>
+              </div>
+
+              <div className="mt-4 p-4 bg-blue-50 rounded-xl">
+                <p className="text-sm text-blue-800 mb-3">
+                  <strong>Manuell inmatning:</strong> Lägg till steg manuellt
+                </p>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => addSteps(1000)}
+                    className="flex-1 bg-blue-600 text-white py-2 rounded-lg font-medium hover:bg-blue-700"
+                  >
+                    +1000
+                  </button>
+                  <button
+                    onClick={() => addSteps(5000)}
+                    className="flex-1 bg-blue-600 text-white py-2 rounded-lg font-medium hover:bg-blue-700"
+                  >
+                    +5000
+                  </button>
+                  <button
+                    onClick={() => addSteps(10000)}
+                    className="flex-1 bg-blue-600 text-white py-2 rounded-lg font-medium hover:bg-blue-700"
+                  >
+                    +10000
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Health Dashboard */}
+            <HealthDashboard
+              goals={goals}
+              progress={progress}
+              onAddWater={addWater}
+              onUpdateHeartRate={updateHeartRate}
+              onUpdateSleep={updateSleep}
+            />
           </div>
         )}
 
