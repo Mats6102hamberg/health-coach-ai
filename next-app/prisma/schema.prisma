@@ -1,0 +1,94 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  weightLogs   WeightLog[]
+  activityLogs ActivityLog[]
+  mealLogs     MealLog[]
+  alerts       Alert[]
+}
+
+model WeightLog {
+  id        String   @id @default(cuid())
+  userId    String
+  weight    Float
+  bodyFat   Float?
+  muscle    Float?
+  notes     String?
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([createdAt])
+}
+
+model ActivityLog {
+  id          String   @id @default(cuid())
+  userId      String
+  type        String
+  steps       Int?
+  calories    Int?
+  duration    Int?
+  distance    Float?
+  heartRate   Int?
+  notes       String?
+  activityDate DateTime @default(now())
+  createdAt   DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([activityDate])
+}
+
+model MealLog {
+  id          String   @id @default(cuid())
+  userId      String
+  mealType    String
+  foodName    String
+  calories    Int
+  protein     Float?
+  carbs       Float?
+  fat         Float?
+  fiber       Float?
+  rating      Int?
+  aiAnalysis  String?
+  photoUrl    String?
+  mealDate    DateTime @default(now())
+  createdAt   DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([mealDate])
+}
+
+model Alert {
+  id        String   @id @default(cuid())
+  userId    String
+  type      String
+  title     String
+  message   String
+  severity  String   @default("info")
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([createdAt])
+  @@index([isRead])
+}

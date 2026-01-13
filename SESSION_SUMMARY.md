@@ -2,8 +2,8 @@
 
 **Projekt:** HälsoPartner AI  
 **Datum:** 2026-01-13  
-**Session:** Next.js-migrering färdigställd  
-**Status:** ✅ Live i dev-miljö
+**Session:** Next.js-migrering + Backend-implementation  
+**Status:** ✅ Backend API fungerar med Neon Postgres
 
 ---
 
@@ -49,18 +49,55 @@ HälsoPartner AI är en AI-driven hälsocoach-app som hjälper användare med:
    - PWA-ikoner och manifest korrekt länkade
 
 6. **Build och Dev-server**
-   - Production build: ✅ Fungerar utan fel
+   - Production build: ⚠️ Turbopack Unicode-problem med svenska tecken i sökväg
    - Dev-server: ✅ Körs på `http://localhost:3000`
    - Inga kritiska varningar (endast Recharts rendering-varning)
+
+### ✅ Backend-implementation färdigställd
+
+7. **Prisma + Neon Postgres**
+   - Prisma 5.22.0 installerat (downgrade från Prisma 7 pga adapter-problem)
+   - Databas-schema skapat med 5 modeller: User, WeightLog, ActivityLog, MealLog, Alert
+   - Migration kördes framgångsrikt: `20260113015835_init`
+   - Prisma Client genererad och fungerar
+   - DATABASE_URL konfigurerad mot Neon Postgres
+
+8. **API-routes skapade och testade**
+   - `/api/user` - CRUD för användare ✅
+   - `/api/weight` - Viktloggning ✅
+   - `/api/activity` - Aktivitetsloggning ✅
+   - `/api/meal` - Matloggning ✅
+   - `/api/ai-coach` - AI-coaching med OpenAI/Claude/Gemini ✅
+   - `/api/alert` - Notifikationer ✅
+
+9. **Verifierade API-tester**
+   - Skapat användare: mats@halsopartner.se
+   - Loggat aktivitet: Löpning 6.2km, 450 kcal
+   - Loggat måltid: Havregrynsgröt med bär, 350 kcal
+   - AI Coach-svar: OpenAI GPT-4o-mini fungerar med svenska råd
 
 ---
 
 ## 📁 Nya/Ändrade filer
 
+### Nya filer (Backend):
+- `/next-app/prisma/schema.prisma` - Datamodeller för User, WeightLog, ActivityLog, MealLog, Alert
+- `/next-app/prisma/migrations/20260113015835_init/migration.sql` - Initial migration
+- `/next-app/prisma.config.ts` - Prisma-konfiguration
+- `/next-app/lib/prisma.ts` - Prisma Client singleton
+- `/next-app/app/api/user/route.ts` - User CRUD API
+- `/next-app/app/api/weight/route.ts` - Weight logging API
+- `/next-app/app/api/activity/route.ts` - Activity logging API
+- `/next-app/app/api/meal/route.ts` - Meal logging API
+- `/next-app/app/api/ai-coach/route.ts` - AI Coach API
+- `/next-app/app/api/alert/route.ts` - Alert/notification API
+- `/next-app/.env` - Environment variables (DATABASE_URL, AI keys)
+
 ### Ändrade filer:
 - `/next-app/eslint.config.mjs` - ESLint-konfiguration för Next.js 16
 - `/next-app/app/layout.tsx` - PWA-metadata, service worker-registrering, viewport
 - `/next-app/public/sw.js` - Service worker uppdaterad till v3 med Next.js-paths
+- `/next-app/package.json` - Lagt till Prisma 5.22.0, dotenv
 
 ### Befintliga filer (inga ändringar):
 - `/next-app/app/page.tsx` - Huvudkomponent med all UI (87k rader)
