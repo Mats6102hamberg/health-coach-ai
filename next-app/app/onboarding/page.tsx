@@ -27,7 +27,7 @@ export default function OnboardingPage() {
 
   const handleComplete = () => {
     // TODO: Save onboarding data to database via Boris API
-    router.push('/');
+    router.push('/app');
   };
 
   return (
