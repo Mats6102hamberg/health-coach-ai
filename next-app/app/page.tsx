@@ -8,6 +8,9 @@ import { useWeightLogs, addWeightLog } from '@/lib/hooks/useWeight';
 import { useActivityLogs, addActivityLog } from '@/lib/hooks/useActivity';
 import { useMealLogs, addMealLog } from '@/lib/hooks/useMeal';
 import { useAICoach } from '@/lib/hooks/useAICoach';
+import { useStreak } from '@/lib/hooks/useStreak';
+import { Confetti } from '@/components/Confetti';
+import { SuccessToast } from '@/components/SuccessToast';
 
 const DEMO_USER_EMAIL = 'mats@halsopartner.se';
 
@@ -23,12 +26,20 @@ export default function HealthApp() {
   const [foodCalories, setFoodCalories] = useState('');
   const [aiMessage, setAiMessage] = useState('');
 
+  // Gamification states
+  const [showConfetti, setShowConfetti] = useState(false);
+  const [showToast, setShowToast] = useState(false);
+  const [toastMessage, setToastMessage] = useState('');
+  const [toastIcon, setToastIcon] = useState('✅');
+  const [earnedXP, setEarnedXP] = useState(0);
+
   // API hooks
   const { user, isLoading: userLoading, mutate: mutateUser } = useUser(DEMO_USER_EMAIL);
   const { weightLogs, isLoading: weightLoading, mutate: mutateWeight } = useWeightLogs(userId || undefined);
   const { activityLogs, isLoading: activityLoading, mutate: mutateActivity } = useActivityLogs(userId || undefined);
   const { mealLogs, isLoading: mealLoading, mutate: mutateMeal } = useMealLogs(userId || undefined);
   const { askAI, isLoading: aiLoading } = useAICoach();
+  const { streak, updateStreak, getAchievements } = useStreak(userId || undefined);
 
   // Initialize user
   useEffect(() => {
@@ -61,6 +72,15 @@ export default function HealthApp() {
     await addWeightLog(userId, parseFloat(weightInput));
     setWeightInput('');
     mutateWeight();
+    
+    const streakData = updateStreak();
+    if (streakData?.isNewLog) {
+      setShowConfetti(true);
+      setToastMessage('Vikt loggad!');
+      setToastIcon('⚖️');
+      setEarnedXP(10 + (streakData.currentStreak * 2));
+      setShowToast(true);
+    }
   };
 
   const handleAddActivity = async () => {
@@ -69,6 +89,15 @@ export default function HealthApp() {
     setActivityType('');
     setActivitySteps('');
     mutateActivity();
+    
+    const streakData = updateStreak();
+    if (streakData?.isNewLog) {
+      setShowConfetti(true);
+      setToastMessage('Aktivitet loggad!');
+      setToastIcon('🏃');
+      setEarnedXP(10 + (streakData.currentStreak * 2));
+      setShowToast(true);
+    }
   };
 
   const handleAddMeal = async () => {
@@ -77,6 +106,15 @@ export default function HealthApp() {
     setFoodName('');
     setFoodCalories('');
     mutateMeal();
+    
+    const streakData = updateStreak();
+    if (streakData?.isNewLog) {
+      setShowConfetti(true);
+      setToastMessage('Måltid loggad!');
+      setToastIcon('🍽️');
+      setEarnedXP(10 + (streakData.currentStreak * 2));
+      setShowToast(true);
+    }
   };
 
   const handleAskAI = async () => {
@@ -103,12 +141,62 @@ export default function HealthApp() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
+      <Confetti trigger={showConfetti} onComplete={() => setShowConfetti(false)} />
+      <SuccessToast
+        show={showToast}
+        message={toastMessage}
+        icon={toastIcon}
+        streak={streak.currentStreak}
+        xp={earnedXP}
+        onClose={() => setShowToast(false)}
+      />
+      
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="bg-white rounded-2xl shadow-xl p-6 mb-6">
           <h1 className="text-3xl font-bold text-gray-800 mb-2">HälsoPartner AI</h1>
           <p className="text-gray-600">Din personliga AI-hälsocoach</p>
           {user && <p className="text-sm text-gray-500 mt-2">Inloggad som: {user.email}</p>}
+          
+          {/* Streak Display */}
+          <div className="mt-4 flex gap-4 items-center">
+            <div className="bg-gradient-to-r from-orange-500 to-red-500 text-white px-4 py-2 rounded-xl flex items-center gap-2">
+              <span className="text-2xl">🔥</span>
+              <div>
+                <p className="text-xs opacity-90">Streak</p>
+                <p className="font-bold text-lg">{streak.currentStreak} dagar</p>
+              </div>
+            </div>
+            <div className="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-4 py-2 rounded-xl flex items-center gap-2">
+              <span className="text-2xl">⚡</span>
+              <div>
+                <p className="text-xs opacity-90">Level {streak.level}</p>
+                <p className="font-bold text-lg">{streak.xp} XP</p>
+              </div>
+            </div>
+            <div className="bg-gradient-to-r from-blue-500 to-cyan-500 text-white px-4 py-2 rounded-xl flex items-center gap-2">
+              <span className="text-2xl">🏆</span>
+              <div>
+                <p className="text-xs opacity-90">Totalt</p>
+                <p className="font-bold text-lg">{streak.totalDays} dagar</p>
+              </div>
+            </div>
+          </div>
+          
+          {/* Achievements */}
+          {getAchievements().length > 0 && (
+            <div className="mt-4 flex flex-wrap gap-2">
+              {getAchievements().map((achievement, i) => (
+                <div
+                  key={i}
+                  className="bg-gradient-to-r from-yellow-400 to-orange-400 text-white px-3 py-1 rounded-full text-sm font-medium flex items-center gap-1 shadow-lg"
+                >
+                  <span>{achievement.icon}</span>
+                  <span>{achievement.name}</span>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Navigation */}
