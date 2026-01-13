@@ -147,6 +147,21 @@ export default function DebugPage() {
 
           {/* Results */}
           <div className="space-y-6">
+            {/* Clear Button */}
+            {(lastResponse || lastError) && (
+              <div className="flex justify-end">
+                <button
+                  onClick={() => {
+                    setLastResponse(null);
+                    setLastError(null);
+                  }}
+                  className="px-4 py-2 bg-gray-200 text-gray-700 rounded-xl font-medium hover:bg-gray-300 transition-all"
+                >
+                  🗑️ Clear
+                </button>
+              </div>
+            )}
+
             {/* Last Response */}
             {lastResponse && (
               <div className="bg-white rounded-2xl shadow-xl p-6">
