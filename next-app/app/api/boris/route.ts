@@ -124,29 +124,30 @@ async function handleDailyLogUpsert(userId: string, payload: any): Promise<ApiRe
   }
 
   try {
-    // TODO: Create DailyLog model in Prisma schema:
-    // model DailyLog {
-    //   id            String   @id @default(cuid())
-    //   userId        String
-    //   date          String
-    //   steps         Int?
-    //   waterMl       Int?
-    //   sleepMinutes  Int?
-    //   heartRateAvg  Int?
-    //   createdAt     DateTime @default(now())
-    //   updatedAt     DateTime @updatedAt
-    //   user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-    //   @@unique([userId, date])
-    // }
+    const date = new Date(parsed.data.date)
+    date.setHours(0, 0, 0, 0) // Normalize to start of day
 
-    // For now, using ActivityLog as fallback
-    const log = await prisma.activityLog.create({
-      data: {
+    const log = await prisma.dailyLog.upsert({
+      where: {
+        userId_date: {
+          userId,
+          date,
+        },
+      },
+      update: {
+        steps: parsed.data.steps ?? undefined,
+        waterMl: parsed.data.waterMl ?? undefined,
+        sleepMinutes: parsed.data.sleepMinutes ?? undefined,
+        heartRateAvg: parsed.data.heartRateAvg ?? undefined,
+        updatedAt: new Date(),
+      },
+      create: {
         userId,
-        type: 'Daily Log',
-        steps: parsed.data.steps || 0,
-        activityDate: new Date(parsed.data.date),
-        // TODO: Add waterMl, sleepMinutes, heartRateAvg fields
+        date,
+        steps: parsed.data.steps ?? 0,
+        waterMl: parsed.data.waterMl ?? 0,
+        sleepMinutes: parsed.data.sleepMinutes,
+        heartRateAvg: parsed.data.heartRateAvg,
       },
     })
 
@@ -170,15 +171,21 @@ async function handleDailyLogGetRange(userId: string, payload: any): Promise<Api
   }
 
   try {
-    const logs = await prisma.activityLog.findMany({
+    const fromDate = new Date(parsed.data.from)
+    fromDate.setHours(0, 0, 0, 0)
+    
+    const toDate = new Date(parsed.data.to)
+    toDate.setHours(23, 59, 59, 999)
+
+    const logs = await prisma.dailyLog.findMany({
       where: {
         userId,
-        activityDate: {
-          gte: new Date(parsed.data.from),
-          lte: new Date(parsed.data.to),
+        date: {
+          gte: fromDate,
+          lte: toDate,
         },
       },
-      orderBy: { activityDate: 'desc' },
+      orderBy: { date: 'desc' },
     })
 
     return { ok: true, data: logs }

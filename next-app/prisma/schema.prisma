@@ -18,6 +18,7 @@ model User {
   activityLogs ActivityLog[]
   mealLogs     MealLog[]
   alerts       Alert[]
+  dailyLogs    DailyLog[]
 }
 
 model WeightLog {
@@ -91,4 +92,21 @@ model Alert {
   @@index([userId])
   @@index([createdAt])
   @@index([isRead])
+}
+
+model DailyLog {
+  id           String   @id @default(cuid())
+  userId       String
+  date         DateTime
+  steps        Int      @default(0)
+  waterMl      Int      @default(0)
+  sleepMinutes Int?
+  heartRateAvg Int?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, date])
+  @@index([userId])
 }
