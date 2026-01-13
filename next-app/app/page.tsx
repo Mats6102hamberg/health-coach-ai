@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar } from 'recharts';
 import { TrendingDown, Activity, Apple, MessageCircle, Plus, Loader2, Heart, Mic, MicOff } from 'lucide-react';
-import { useUser, createUser } from '@/lib/hooks/useUser';
+import { useUser as useClerkUser, UserButton } from '@clerk/nextjs';
 import { useWeightLogs, addWeightLog } from '@/lib/hooks/useWeight';
 import { useActivityLogs, addActivityLog } from '@/lib/hooks/useActivity';
 import { useMealLogs, addMealLog } from '@/lib/hooks/useMeal';
@@ -17,11 +17,9 @@ import { Confetti } from '@/components/Confetti';
 import { SuccessToast } from '@/components/SuccessToast';
 import { HealthDashboard } from '@/components/HealthDashboard';
 
-const DEMO_USER_EMAIL = 'mats@halsopartner.se';
-
 export default function HealthApp() {
+  const { user, isLoaded } = useClerkUser();
   const [currentTab, setCurrentTab] = useState('dashboard');
-  const [userId, setUserId] = useState<string | null>(null);
 
   // Form states
   const [weightInput, setWeightInput] = useState('');
@@ -38,8 +36,10 @@ export default function HealthApp() {
   const [toastIcon, setToastIcon] = useState('✅');
   const [earnedXP, setEarnedXP] = useState(0);
 
+  // Get userId from Clerk
+  const userId = user?.id || null;
+
   // API hooks
-  const { user, isLoading: userLoading, mutate: mutateUser } = useUser(DEMO_USER_EMAIL);
   const { weightLogs, isLoading: weightLoading, mutate: mutateWeight } = useWeightLogs(userId || undefined);
   const { activityLogs, isLoading: activityLoading, mutate: mutateActivity } = useActivityLogs(userId || undefined);
   const { mealLogs, isLoading: mealLoading, mutate: mutateMeal } = useMealLogs(userId || undefined);
@@ -54,17 +54,29 @@ export default function HealthApp() {
   // Speech recognition for Boris
   const { isListening, transcript, interimTranscript, isSupported, startListening, stopListening, resetTranscript } = useSpeechRecognition();
 
-  // Initialize user
-  useEffect(() => {
-    if (user && user.id) {
-      setUserId(user.id);
-    } else if (!userLoading && !user) {
-      createUser(DEMO_USER_EMAIL, 'Mats Hamberg').then((newUser) => {
-        setUserId(newUser.id);
-        mutateUser();
-      });
-    }
-  }, [user, userLoading, mutateUser]);
+  // Show loading while Clerk is loading
+  if (!isLoaded) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50 flex items-center justify-center">
+        <div className="text-center">
+          <Loader2 className="w-12 h-12 animate-spin text-blue-600 mx-auto mb-4" />
+          <p className="text-gray-600">Laddar...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show message if not signed in
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50 flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-3xl font-bold text-gray-800 mb-4">Välkommen till HälsoPartner AI</h1>
+          <p className="text-gray-600 mb-6">Logga in för att komma åt din hälsodata</p>
+        </div>
+      </div>
+    );
+  }
 
   // Sync step data with health progress
   useEffect(() => {
@@ -205,14 +217,6 @@ export default function HealthApp() {
     setAiMessage('');
   };
 
-  if (userLoading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
-      </div>
-    );
-  }
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
       <Confetti trigger={showConfetti} onComplete={() => setShowConfetti(false)} />
@@ -228,9 +232,12 @@ export default function HealthApp() {
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="bg-white rounded-2xl shadow-xl p-6 mb-6">
-          <h1 className="text-3xl font-bold text-gray-800 mb-2">HälsoPartner AI</h1>
+          <div className="flex items-center justify-between mb-2">
+            <h1 className="text-3xl font-bold text-gray-800">HälsoPartner AI</h1>
+            <UserButton afterSignOutUrl="/sign-in" />
+          </div>
           <p className="text-gray-600">Din personliga AI-hälsocoach</p>
-          {user && <p className="text-sm text-gray-500 mt-2">Inloggad som: {user.email}</p>}
+          {user && <p className="text-sm text-gray-500 mt-2">Välkommen, {user.firstName || user.emailAddresses[0].emailAddress}!</p>}
           
           {/* Streak Display */}
           <div className="mt-4 flex gap-4 items-center">

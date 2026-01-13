@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import Script from "next/script";
+import { ClerkProvider } from '@clerk/nextjs';
 import "./globals.css";
 
 const geistSans = Geist({
@@ -38,31 +39,33 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="sv">
-      <head>
-        <link rel="icon" href="/icon-192.png" />
-        <link rel="apple-touch-icon" href="/icon-192.png" />
-      </head>
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-        {children}
-        <Script id="register-sw" strategy="afterInteractive">
-          {`
-            if ('serviceWorker' in navigator) {
-              window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/sw.js')
-                  .then(registration => {
-                    console.log('Service Worker registrerad:', registration.scope);
-                  })
-                  .catch(error => {
-                    console.log('Service Worker registrering misslyckades:', error);
-                  });
-              });
-            }
-          `}
-        </Script>
-      </body>
-    </html>
+    <ClerkProvider>
+      <html lang="sv">
+        <head>
+          <link rel="icon" href="/icon-192.png" />
+          <link rel="apple-touch-icon" href="/icon-192.png" />
+        </head>
+        <body
+          className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        >
+          {children}
+          <Script id="register-sw" strategy="afterInteractive">
+            {`
+              if ('serviceWorker' in navigator) {
+                window.addEventListener('load', () => {
+                  navigator.serviceWorker.register('/sw.js')
+                    .then(registration => {
+                      console.log('Service Worker registrerad:', registration.scope);
+                    })
+                    .catch(error => {
+                      console.log('Service Worker registrering misslyckades:', error);
+                    });
+                });
+              }
+            `}
+          </Script>
+        </body>
+      </html>
+    </ClerkProvider>
   );
 }
