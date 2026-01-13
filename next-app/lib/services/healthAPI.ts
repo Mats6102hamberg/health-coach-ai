@@ -3,7 +3,8 @@ export class HealthDataAPI {
   public isSupported: boolean;
 
   constructor() {
-    this.isSupported = 'serviceWorker' in navigator;
+    this.isSupported =
+      typeof navigator !== 'undefined' && 'serviceWorker' in navigator;
   }
 
   // Simulera Apple Health / Google Fit data
@@ -81,9 +82,9 @@ export class AICoachAPI {
   private geminiURL: string;
 
   constructor() {
-    this.openaiKey = import.meta.env.VITE_OPENAI_API_KEY || '';
-    this.claudeKey = import.meta.env.VITE_ANTHROPIC_API_KEY || '';
-    this.geminiKey = import.meta.env.VITE_GEMINI_API_KEY || '';
+    this.openaiKey = process.env.NEXT_PUBLIC_OPENAI_API_KEY || '';
+    this.claudeKey = process.env.NEXT_PUBLIC_ANTHROPIC_API_KEY || '';
+    this.geminiKey = process.env.NEXT_PUBLIC_GEMINI_API_KEY || '';
     this.openaiURL = 'https://api.openai.com/v1';
     this.claudeURL = 'https://api.anthropic.com/v1';
     this.geminiURL = 'https://generativelanguage.googleapis.com/v1beta';
@@ -91,9 +92,9 @@ export class AICoachAPI {
 
   // Kolla vilken AI-provider som är aktiv
   getAIProvider(): 'openai' | 'claude' | 'gemini' {
-    const openaiKey = import.meta.env.VITE_OPENAI_API_KEY;
-    const claudeKey = import.meta.env.VITE_ANTHROPIC_API_KEY;
-    const geminiKey = import.meta.env.VITE_GEMINI_API_KEY;
+    const openaiKey = process.env.NEXT_PUBLIC_OPENAI_API_KEY;
+    const claudeKey = process.env.NEXT_PUBLIC_ANTHROPIC_API_KEY;
+    const geminiKey = process.env.NEXT_PUBLIC_GEMINI_API_KEY;
     
     // Kolla om nyckeln är riktig (inte placeholder)
     if (openaiKey && openaiKey !== 'your_openai_api_key_here' && openaiKey.startsWith('sk-proj-')) {

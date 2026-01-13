@@ -1,0 +1,32 @@
+# HälsoPartner AI - API Configuration
+# Skapa en fil som heter ".env" i projektets rot och kopiera innehållet nedan
+
+VITE_OPENAI_API_KEY=your_openai_api_key_here
+VITE_ANTHROPIC_API_KEY=your_claude_api_key_here
+VITE_GEMINI_API_KEY=your_gemini_api_key_here
+
+# Instruktioner för att få API-nycklar:
+
+# 1. OPENAI (Rekommenderas - Snabbast och billigast)
+#    - Gå till: https://platform.openai.com/api-keys
+#    - Logga in med ditt konto
+#    - Klicka "Create new secret key"
+#    - Kopiera nyckeln och ersätt "your_openai_api_key_here"
+
+# 2. CLAUDE (Bästa kvalitet)
+#    - Gå till: https://console.anthropic.com/
+#    - Logga in med ditt konto
+#    - Gå till API Keys
+#    - Skapa ny nyckel
+#    - Kopiera nyckeln och ersätt "your_claude_api_key_here"
+
+# 3. GEMINI (Gratis alternativ)
+#    - Gå till: https://makersuite.google.com/app/apikey
+#    - Logga in med Google-konto
+#    - Skapa ny API-nyckel
+#    - Kopiera nyckeln och ersätt "your_gemini_api_key_here"
+
+# När du har skapat .env filen:
+# 1. Spara filen
+# 2. Kör "npm run dev" för att testa lokalt
+# 3. Deploya med "vercel --prod" för att få AI på din live-app

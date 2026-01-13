@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar } from 'recharts';
-import { TrendingDown, Activity, Apple, MessageCircle, Target, Save, Award, Brain, Zap, Heart, Trophy, Smartphone, Wifi, Bell, Camera } from 'lucide-react';
+import { TrendingDown, Activity, Apple, MessageCircle, Target, Save, Award, Brain, Zap, Heart, Trophy, Smartphone, Wifi, Bell, Camera, Gift } from 'lucide-react';
 import { HealthDataAPI, AICoachAPI } from './services/healthAPI';
 import { NotificationService } from './services/notificationService';
 
@@ -17,7 +17,7 @@ const HealthApp = () => {
   const [realTimeHeartRate, setRealTimeHeartRate] = useState(72);
   const [notificationsEnabled, setNotificationsEnabled] = useState(false);
   const [isLoadingAI, setIsLoadingAI] = useState(false);
-  const [aiProvider, setAiProvider] = useState<'demo' | 'openai' | 'claude' | 'gemini'>('demo');
+  const [aiProvider, setAiProvider] = useState<'openai' | 'claude' | 'gemini'>('openai');
   const [healthDataAPI] = useState(new HealthDataAPI());
   const [aiCoachAPI] = useState(new AICoachAPI());
   const [notificationService] = useState(new NotificationService());
@@ -33,53 +33,13 @@ const HealthApp = () => {
     workoutTime: 'evening'
   });
 
-  const [weightData, setWeightData] = useState([
-    { date: '2025-09-01', weight: 82, target: 78 },
-    { date: '2025-09-03', weight: 81.5, target: 78 },
-    { date: '2025-09-05', weight: 81.2, target: 78 },
-    { date: '2025-09-07', weight: 80.8, target: 78 },
-    { date: '2025-09-09', weight: 80.5, target: 78 },
-    { date: '2025-09-11', weight: 80.2, target: 78 }
-  ]);
+  const [weightData, setWeightData] = useState<Array<{date: string, weight: number, target: number}>>([]);
 
-  const [activityData, setActivityData] = useState([
-    { date: '2025-09-05', steps: 8500, minutes: 45, calories: 320 },
-    { date: '2025-09-06', steps: 9200, minutes: 52, calories: 380 },
-    { date: '2025-09-07', steps: 7800, minutes: 38, calories: 290 },
-    { date: '2025-09-08', steps: 10500, minutes: 65, calories: 450 },
-    { date: '2025-09-09', steps: 9800, minutes: 58, calories: 410 },
-    { date: '2025-09-10', steps: 8900, minutes: 48, calories: 360 },
-    { date: '2025-09-11', steps: 11200, minutes: 72, calories: 520 }
-  ]);
+  const [activityData, setActivityData] = useState<Array<{date: string, steps: number, minutes: number, calories: number}>>([]);
 
-  const [foodLog, setFoodLog] = useState([
-    { food: 'Havregrynsgröt', calories: 320, time: '08:00', aiRating: 'excellent' },
-    { food: 'Sallad med kyckling', calories: 450, time: '12:30', aiRating: 'good' },
-    { food: 'Pizza', calories: 680, time: '18:00', aiRating: 'poor' }
-  ]);
+  const [foodLog, setFoodLog] = useState<Array<{food: string, calories: number, time: string, aiRating: string}>>([]);
 
-  const [aiMessages, setAiMessages] = useState([
-    { 
-      type: 'motivation', 
-      message: "🎉 Fantastiskt! Du har gått ner 1.8 kg denna månad! Din konstanta framsteg visar verklig dedikation!",
-      timestamp: new Date().toLocaleTimeString('sv-SE', { hour: '2-digit', minute: '2-digit' })
-    },
-    { 
-      type: 'nutrition', 
-      message: "🍝 Jag ser att du älskar pasta! Prova zucchininudlar med köttfärssås - samma smak men 70% färre kolhydrater!",
-      timestamp: new Date(Date.now() - 1800000).toLocaleTimeString('sv-SE', { hour: '2-digit', minute: '2-digit' })
-    },
-    { 
-      type: 'exercise', 
-      message: "🏃‍♀️ Baserat på din aktivitetshistorik är du mest aktiv på kvällarna. Perfekt tid för 20 min HIIT-träning!",
-      timestamp: new Date(Date.now() - 3600000).toLocaleTimeString('sv-SE', { hour: '2-digit', minute: '2-digit' })
-    },
-    { 
-      type: 'goal', 
-      message: "🎯 Ny smart målsättning: Baserat på din progress föreslår jag 9500 steg/dag nästa vecka (500 mer än genomsnittet)!",
-      timestamp: new Date(Date.now() - 7200000).toLocaleTimeString('sv-SE', { hour: '2-digit', minute: '2-digit' })
-    }
-  ]);
+  const [aiMessages, setAiMessages] = useState<Array<{type: string, message: string, timestamp: string}>>([]);
 
   // Nya AI-funktioner state
   const [mealPlan, setMealPlan] = useState(null);
@@ -90,35 +50,31 @@ const HealthApp = () => {
   const [isGeneratingPlan, setIsGeneratingPlan] = useState(false);
 
   // AI Functions
-  const analyzeFood = (foodItem: string, calorieAmount: number) => {
-    const foodDatabase: Record<string, { rating: string; suggestion: string }> = {
-      // Hälsosamma alternativ
-      'sallad': { rating: 'excellent', suggestion: 'Perfekt val! Lägg till lite nötter för protein och hälsosamma fetter.' },
-      'fisk': { rating: 'excellent', suggestion: 'Utmärkt proteinval! Omega-3 hjälper med inflammation och viktminskning.' },
-      'äpplen': { rating: 'excellent', suggestion: 'Bra snack! Fibrer håller dig mätt längre.' },
-      'havregrynsgröt': { rating: 'excellent', suggestion: 'Perfekt frukost! Tillsätt bär för extra antioxidanter.' },
-      
-      // Måttliga alternativ
-      'pasta': { rating: 'moderate', suggestion: 'Prova linspasta eller shirataki nudlar - 60% färre kalorier, mer protein!' },
-      'ris': { rating: 'moderate', suggestion: 'Byt till blomkålsris eller quinoa för mer näring och färre kalorier.' },
-      'bröd': { rating: 'moderate', suggestion: 'Välj fullkornsbröd eller prova cloud bread (endast 25 kcal/skiva)!' },
-      
-      // Mindre hälsosamma
-      'pizza': { rating: 'poor', suggestion: 'Prova blomkålspizza eller protein-pizza - samma smak, 50% färre kalorier!' },
-      'chips': { rating: 'poor', suggestion: 'Byt till poppade kikärter eller ugnsrostade grönsaker - lika krispiga!' },
-      'glass': { rating: 'poor', suggestion: 'Prova frozen yoghurt eller "nice cream" (frusen banan) - naturligt sött!' },
-      'choklad': { rating: 'poor', suggestion: 'Mörk choklad 85% - mindre socker, mer antioxidanter, mindre portioner!' },
-      'läsk': { rating: 'poor', suggestion: 'Bubbelvatten med citron eller stevia-sötad läsk - noll kalorier!' }
-    };
+  const analyzeFood = async (foodItem: string, calorieAmount: number) => {
+    // Använd riktig AI istället för statisk data
+    try {
+      const aiAdvice = await aiCoachAPI.generatePersonalizedAdvice({
+        weight: weightData[weightData.length - 1]?.weight || 0,
+        steps: activityData[activityData.length - 1]?.steps || 0,
+        heartRate: 0,
+        sleepHours: 0,
+        caloriesConsumed: calorieAmount,
+        foodItem: foodItem
+      });
 
-    const lowerFood = foodItem.toLowerCase();
-    const match = Object.keys(foodDatabase).find(key => lowerFood.includes(key));
-    
-    if (match) {
-      const analysis = foodDatabase[match];
+      const analysis = { rating: 'good', suggestion: aiAdvice || 'Bra val! Kom ihåg att variera din kost.' };
       const aiMessage = {
         type: 'nutrition',
         message: `🔍 AI-Matanalys: "${foodItem}" (${calorieAmount} kcal) - ${analysis.suggestion}`,
+        timestamp: new Date().toLocaleTimeString('sv-SE', { hour: '2-digit', minute: '2-digit' })
+      };
+      return { analysis, aiMessage };
+    } catch (error) {
+      // Fallback om AI inte fungerar
+      const analysis = { rating: 'moderate', suggestion: 'Logga maten och få personliga råd från AI!' };
+      const aiMessage = {
+        type: 'nutrition',
+        message: `🔍 Matloggad: "${foodItem}" (${calorieAmount} kcal)`,
         timestamp: new Date().toLocaleTimeString('sv-SE', { hour: '2-digit', minute: '2-digit' })
       };
       return { analysis, aiMessage };
@@ -148,8 +104,8 @@ const HealthApp = () => {
 
   const generateWorkoutAdvice = () => {
     const currentWeight = weightData[weightData.length - 1]?.weight || 0;
-    const avgSteps = activityData.slice(-7).reduce((sum, day) => sum + day.steps, 0) / 7;
-    const weightLossRate = (weightData[0]?.weight - currentWeight) / weightData.length;
+    const avgSteps = activityData.length > 0 ? activityData.slice(-7).reduce((sum, day) => sum + day.steps, 0) / 7 : 0;
+    const weightLossRate = weightData.length > 0 ? (weightData[0]?.weight - currentWeight) / weightData.length : 0;
     
     let advice = '';
     
@@ -175,8 +131,8 @@ const HealthApp = () => {
   const generateMotivationalMessage = () => {
     const currentWeight = weightData[weightData.length - 1]?.weight || 0;
     const startWeight = weightData[0]?.weight || 0;
-    const targetWeight = 78;
-    const progress = ((startWeight - currentWeight) / (startWeight - targetWeight)) * 100;
+    const targetWeight = 0; // Användarens målvikt - ingen statisk data
+    const progress = startWeight > 0 && targetWeight > 0 ? ((startWeight - currentWeight) / (startWeight - targetWeight)) * 100 : 0;
     const todaySteps = activityData[activityData.length - 1]?.steps || 0;
     
     const motivationalMessages = [
@@ -195,7 +151,7 @@ const HealthApp = () => {
   };
 
   const setSmartGoals = () => {
-    const avgSteps = activityData.slice(-7).reduce((sum, day) => sum + day.steps, 0) / 7;
+    const avgSteps = activityData.length > 0 ? activityData.slice(-7).reduce((sum, day) => sum + day.steps, 0) / 7 : 0;
     const weightLossRate = weightData.length > 1 ? 
       (weightData[weightData.length - 2]?.weight - weightData[weightData.length - 1]?.weight) : 0;
     
@@ -226,7 +182,7 @@ const HealthApp = () => {
     try {
       const userData = {
         weight: weightData[weightData.length - 1]?.weight || 0,
-        targetWeight: 78,
+        targetWeight: 0,
         calories: 1800,
         activityLevel: userProfile.activityLevel
       };
@@ -253,7 +209,7 @@ const HealthApp = () => {
     try {
       const userData = {
         weight: weightData[weightData.length - 1]?.weight || 0,
-        targetWeight: 78,
+        targetWeight: 0,
         activityLevel: userProfile.activityLevel,
         heartRate: realTimeHeartRate
       };
@@ -280,10 +236,10 @@ const HealthApp = () => {
     try {
       const userData = {
         weight: weightData[weightData.length - 1]?.weight || 0,
-        targetWeight: 78,
+        targetWeight: 0,
         steps: activityData[activityData.length - 1]?.steps || 0,
         heartRate: realTimeHeartRate,
-        sleep: 7.5
+        sleep: 0
       };
       
       const historicalData = weightData.map(w => ({
@@ -322,10 +278,10 @@ const HealthApp = () => {
     try {
       const context = {
         weight: weightData[weightData.length - 1]?.weight || 0,
-        targetWeight: 78,
+        targetWeight: 0,
         steps: activityData[activityData.length - 1]?.steps || 0,
         heartRate: realTimeHeartRate,
-        sleep: 7.5
+        sleep: 0
       };
       
       const aiResponse = await aiCoachAPI.chatWithAI(userMessage, context);
@@ -343,7 +299,7 @@ const HealthApp = () => {
     if (weight) {
       const today = new Date().toISOString().split('T')[0];
       const newWeight = parseFloat(weight);
-      setWeightData([...weightData, { date: today, weight: newWeight, target: 78 }]);
+      setWeightData([...weightData, { date: today, weight: newWeight, target: 0 }]);
       
       // AI-analys av viktändring
       const lastWeight = weightData[weightData.length - 1]?.weight;
@@ -394,9 +350,9 @@ const HealthApp = () => {
     }
   };
 
-  const addFood = () => {
+  const addFood = async () => {
     if (food && calories) {
-      const { analysis, aiMessage } = analyzeFood(food, parseInt(calories));
+      const { analysis, aiMessage } = await analyzeFood(food, parseInt(calories));
       
       setFoodLog([...foodLog, {
         food: food,
@@ -516,9 +472,9 @@ const HealthApp = () => {
             const userData = {
               steps: steps[0]?.steps || 0,
               heartRate: heartRate.current,
-              sleep: sleep[0]?.duration || 7,
+              sleep: sleep[0]?.duration || 0,
               weight: weightData[weightData.length - 1]?.weight,
-              targetWeight: 78,
+              targetWeight: 0,
               weeklyWeightLoss: calculateWeeklyWeightLoss()
             };
             
@@ -557,10 +513,10 @@ const HealthApp = () => {
       
       const userData = {
         weight: currentWeight,
-        targetWeight: 78,
+        targetWeight: 0,
         steps: todaySteps,
         heartRate: realTimeHeartRate,
-        sleep: 7.5, // Från HealthKit data
+        sleep: 0, // Från HealthKit data
         calories: 1800,
         activityLevel: userProfile.activityLevel
       };
@@ -569,7 +525,7 @@ const HealthApp = () => {
       
       // Uppdatera AI-provider baserat på den verkliga providern
       if ('provider' in aiAdvice && aiAdvice.provider) {
-        const provider = aiAdvice.provider as 'demo' | 'openai' | 'claude';
+        const provider = aiAdvice.provider as 'openai' | 'claude' | 'gemini';
         setAiProvider(provider);
       } else {
         // Fallback: kolla vilken provider som används
@@ -652,9 +608,9 @@ const HealthApp = () => {
   };
 
   const currentWeight = weightData[weightData.length - 1]?.weight || 0;
-  const weightProgress = ((82 - currentWeight) / (82 - 78)) * 100;
+  const weightProgress = 0; // Ingen statisk beräkning - vänta på användardata
   const todaySteps = activityData[activityData.length - 1]?.steps || 0;
-  const weeklyAvgSteps = activityData.slice(-7).reduce((sum, day) => sum + day.steps, 0) / 7;
+  const weeklyAvgSteps = activityData.length > 0 ? activityData.slice(-7).reduce((sum, day) => sum + day.steps, 0) / 7 : 0;
   const todayCaloriesBurned = activityData[activityData.length - 1]?.calories || 0;
 
   return (
@@ -714,8 +670,7 @@ const HealthApp = () => {
             aiProvider === 'gemini' ? 'bg-purple-700' : 'bg-gray-700'
           }`}>
             AI: {aiProvider === 'openai' ? '🤖 GPT-4' : 
-                 aiProvider === 'claude' ? '🧠 Claude' : 
-                 aiProvider === 'gemini' ? '💎 Gemini' : '🏠 Demo'}
+                 aiProvider === 'claude' ? '🧠 Claude' : '💎 Gemini'}
           </div>
         </div>
         <div className="flex items-center gap-2">
@@ -729,19 +684,6 @@ const HealthApp = () => {
         {/* Enhanced Dashboard */}
         {currentTab === 'dashboard' && (
           <div className="space-y-4">
-            {/* Demo Info Panel */}
-            <div className="bg-gradient-to-r from-yellow-100 to-amber-100 rounded-lg p-4 border border-yellow-200">
-              <h3 className="font-semibold text-gray-800 mb-2 flex items-center gap-2">
-                <Zap className="text-yellow-600" size={16} />
-                🎮 Demo-läge aktivt
-              </h3>
-              <div className="text-sm text-gray-700 space-y-1">
-                <p>📊 <strong>All data är simulerad</strong> - inte riktiga hälsovärden</p>
-                <p>❤️ <strong>Hjärtfrekvens:</strong> Mathematisk simulation (inte din riktiga puls)</p>
-                <p>📱 <strong>Telefon-data:</strong> Slumpmässiga värden för demo</p>
-                <p>🤖 <strong>AI:</strong> {aiProvider === 'openai' ? 'Riktig OpenAI GPT-4o-mini' : 'Demo-svar'}</p>
-              </div>
-            </div>
 
             {/* PWA Status Panel */}
             <div className={`rounded-lg p-4 border ${
@@ -790,11 +732,11 @@ const HealthApp = () => {
                 <div className="bg-blue-50 p-3 rounded-lg">
                   <div className="text-blue-600 text-sm">Nuvarande vikt</div>
                   <div className="text-xl font-bold text-blue-800">{currentWeight} kg</div>
-                  <div className="text-xs text-blue-600">↓ 1.8kg denna månad</div>
+                  <div className="text-xs text-blue-600">Ingen data än</div>
                 </div>
                 <div className="bg-green-50 p-3 rounded-lg">
                   <div className="text-green-600 text-sm">Målvikt</div>
-                  <div className="text-xl font-bold text-green-800">78 kg</div>
+                  <div className="text-xl font-bold text-green-800">- kg</div>
                   <div className="text-xs text-green-600">{Math.round(weightProgress)}% klart</div>
                 </div>
                 <div className="bg-purple-50 p-3 rounded-lg">
@@ -804,8 +746,8 @@ const HealthApp = () => {
                 </div>
                 <div className="bg-orange-50 p-3 rounded-lg">
                   <div className="text-orange-600 text-sm">AI-Score</div>
-                  <div className="text-xl font-bold text-orange-800">8.5/10</div>
-                  <div className="text-xs text-orange-600">Utmärkt progress!</div>
+                  <div className="text-xl font-bold text-orange-800">- /10</div>
+                  <div className="text-xs text-orange-600">Ingen data än</div>
                 </div>
               </div>
             </div>
@@ -817,9 +759,7 @@ const HealthApp = () => {
                 AI-Insikter
               </h3>
               <div className="text-sm text-gray-700 space-y-2">
-                <p>🧠 <strong>Beteendemönster:</strong> Du är mest aktiv 17-19 - perfekt för kvällsträning!</p>
-                <p>📈 <strong>Trend:</strong> Viktminskning accelererar - du har hittat din rytm!</p>
-                <p>🎯 <strong>Nästa mål:</strong> Öka protein till 25% av kalorierna för optimal muskelbehållning</p>
+                <p>Klicka på AI-funktioner för att få personliga insikter baserat på din data.</p>
               </div>
             </div>
 
@@ -881,14 +821,19 @@ const HealthApp = () => {
                 AI-Smarta mål
               </h3>
               <button 
-                onClick={() => setAiMessages(prev => [setSmartGoals(), ...prev])}
+                onClick={() => {
+                  console.log('🧪 Smarta mål-knapp klickad!');
+                  const goals = setSmartGoals();
+                  console.log('🧪 Genererade mål:', goals);
+                  setAiMessages(prev => [goals, ...prev]);
+                  console.log('🧪 AI-meddelanden uppdaterade');
+                }}
                 className="bg-green-600 text-white px-4 py-2 rounded-lg text-sm"
               >
                 Generera nya mål
               </button>
               <div className="mt-2 text-sm text-gray-700">
-                <p>Nästa vecka: 79.7 kg (AI-rekommenderat baserat på din trend)</p>
-                <p>Månad: 78.5 kg (optimal hållbar viktminskning)</p>
+                <p>Klicka "Generera nya mål" för personliga AI-rekommendationer baserat på din data.</p>
               </div>
             </div>
 
@@ -913,8 +858,8 @@ const HealthApp = () => {
                 <Award className="text-green-600" size={20} />
                 <span className="font-semibold text-gray-800">AI-Framstegsanalys</span>
               </div>
-              <div className="text-2xl font-bold text-green-700">-1.8 kg</div>
-              <div className="text-sm text-gray-600">Optimal viktminskning! AI föreslår bibehållning av nuvarande tempo.</div>
+              <div className="text-2xl font-bold text-green-700">0 kg</div>
+              <div className="text-sm text-gray-600">Logga viktdata för att få AI-framstegsanalys.</div>
             </div>
           </div>
         )}
@@ -958,15 +903,19 @@ const HealthApp = () => {
                 AI-Träningsråd
               </h3>
               <button 
-                onClick={() => setAiMessages(prev => [generateWorkoutAdvice(), ...prev])}
+                onClick={() => {
+                  console.log('🧪 Träningsråd-knapp klickad!');
+                  const advice = generateWorkoutAdvice();
+                  console.log('🧪 Genererad råd:', advice);
+                  setAiMessages(prev => [advice, ...prev]);
+                }}
                 onTouchStart={() => {}}
                 className="bg-orange-600 text-white px-4 py-2 rounded-lg text-sm mb-2 touch-target active:bg-orange-700 transition-colors"
               >
                 Få personligt träningsråd
               </button>
               <div className="text-sm text-gray-700">
-                <p><strong>Baserat på din data:</strong> Kvällsträning 18-20 ger bästa resultat för dig!</p>
-                <p><strong>Rekommendation:</strong> 3x20 min HIIT/vecka + dagliga promenader</p>
+                <p>Klicka "Få personligt träningsråd" för AI-genererade råd baserat på din aktivitetsdata.</p>
               </div>
             </div>
 
@@ -1080,37 +1029,93 @@ const HealthApp = () => {
 
             <div className="bg-white rounded-lg p-4 shadow-sm">
               <h3 className="text-md font-semibold text-gray-800 mb-3">AI-Smarta substitut</h3>
-              <div className="space-y-3 text-sm">
-                <div className="flex justify-between p-2 bg-gray-50 rounded">
-                  <span>Vanlig pasta</span>
-                  <span className="text-green-600">→ Linspasta (-40% kcal, +protein)</span>
-                </div>
-                <div className="flex justify-between p-2 bg-gray-50 rounded">
-                  <span>Chips</span>
-                  <span className="text-green-600">→ Poppade kikärter (-50% kcal)</span>
-                </div>
-                <div className="flex justify-between p-2 bg-gray-50 rounded">
-                  <span>Glass</span>
-                  <span className="text-green-600">→ Frozen yoghurt (-60% kcal)</span>
-                </div>
-                <div className="flex justify-between p-2 bg-gray-50 rounded">
-                  <span>Mjölkchoklad</span>
-                  <span className="text-green-600">→ Mörk choklad 85% (-30% kcal)</span>
-                </div>
-                <div className="flex justify-between p-2 bg-gray-50 rounded">
-                  <span>Läsk</span>
-                  <span className="text-green-600">→ Bubbelvatten + citron (0 kcal)</span>
-                </div>
+              <div className="text-sm text-gray-500 text-center py-4">
+                Fyll i matdata för att få personliga substitut-förslag
               </div>
             </div>
 
             {/* Nutritional AI Insights */}
             <div className="bg-gradient-to-r from-blue-100 to-purple-100 rounded-lg p-4">
               <h3 className="font-semibold text-gray-800 mb-2">🧠 AI-Näringsinsikter</h3>
-              <div className="text-sm text-gray-700 space-y-1">
-                <p>• Du äter oftast kolhydrater på kvällen - prova protein istället för bättre sömn</p>
-                <p>• Öka fibrer med 5g/dag för förbättrad mättnadskänsla</p>
-                <p>• Din proteinfördelning är optimal på morgonen men låg på kvällen</p>
+              <div className="text-sm text-gray-500 text-center py-2">
+                Logga matdata för att få personliga näringsinsikter
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Swish Donation Tab */}
+        {currentTab === 'donate' && (
+          <div className="space-y-4">
+            <div className="bg-gradient-to-r from-green-100 to-blue-100 rounded-lg p-6 shadow-sm">
+              <h2 className="text-2xl font-bold text-gray-800 mb-4 flex items-center gap-3">
+                <Gift className="text-green-600" size={28} />
+                Stöd appen med gåva
+              </h2>
+              <p className="text-gray-700 mb-6">
+                Hjälp oss att hålla HälsoPartner AI gratis för alla! Din donation hjälper till att täcka 
+                AI-kostnader och utveckla nya funktioner.
+              </p>
+              
+              <div className="bg-white rounded-lg p-6 shadow-sm">
+                <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                  <div className="w-8 h-8 bg-green-600 rounded-full flex items-center justify-center text-white font-bold">S</div>
+                  Swish Donation
+                </h3>
+                
+                <div className="space-y-4">
+                  <div className="bg-gray-50 p-4 rounded-lg">
+                    <p className="text-sm text-gray-600 mb-2">Swish-nummer:</p>
+                    <p className="text-2xl font-mono font-bold text-gray-800">073-930 97 48</p>
+                  </div>
+                  
+                  <div className="bg-green-50 p-4 rounded-lg border border-green-200">
+                    <p className="text-sm text-gray-600 mb-2">Föreslagna belopp:</p>
+                    <div className="flex flex-wrap gap-2">
+                      <button className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors">
+                        25 kr
+                      </button>
+                      <button className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors">
+                        50 kr
+                      </button>
+                      <button className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors">
+                        100 kr
+                      </button>
+                      <button className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors">
+                        200 kr
+                      </button>
+                    </div>
+                  </div>
+                  
+                  <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
+                    <h4 className="font-semibold text-gray-800 mb-2">💡 Vad din donation används till:</h4>
+                    <ul className="text-sm text-gray-700 space-y-1">
+                      <li>• AI-kostnader (OpenAI, Claude, Gemini)</li>
+                      <li>• Server-hosting och drift</li>
+                      <li>• Utveckling av nya funktioner</li>
+                      <li>• Underhåll och uppdateringar</li>
+                    </ul>
+                  </div>
+                  
+                  <div className="text-center">
+                    <button 
+                      onClick={() => {
+                        // Öppna Swish-appen
+                        window.location.href = 'swish://paymentrequest?token=0739309748&message=H%C3%A4lsoPartner%20AI%20Donation';
+                      }}
+                      className="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-8 rounded-lg transition-colors flex items-center gap-2 mx-auto"
+                    >
+                      <div className="w-6 h-6 bg-white rounded-full flex items-center justify-center text-green-600 font-bold">S</div>
+                      Öppna i Swish
+                    </button>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="mt-6 text-center">
+                <p className="text-sm text-gray-600">
+                  Tack för ditt stöd! 🙏 Varje krona hjälper oss att förbättra appen.
+                </p>
               </div>
             </div>
           </div>
@@ -1222,41 +1227,16 @@ const HealthApp = () => {
                 </div>
               </div>
 
-              {/* AI Setup Guide */}
-              {aiProvider === 'demo' && (
-                <div className="bg-gradient-to-r from-orange-100 to-red-100 p-4 rounded-lg mb-4 border border-orange-200">
-                  <h3 className="font-semibold text-gray-800 mb-2 flex items-center gap-2">
-                    <Zap className="text-orange-600" size={16} />
-                    🔧 Aktivera riktig AI
-                  </h3>
-                  <div className="text-sm text-gray-700 space-y-2">
-                    <p><strong>Steg 1:</strong> Gå till <a href="https://platform.openai.com/" target="_blank" className="text-blue-600 underline">platform.openai.com</a></p>
-                    <p><strong>Steg 2:</strong> Skapa konto och gå till "API Keys"</p>
-                    <p><strong>Steg 3:</strong> Skapa ny nyckel och kopiera den</p>
-                    <p><strong>Steg 4:</strong> Öppna <code className="bg-gray-200 px-1 rounded">.env</code> fil i projektroten</p>
-                    <p><strong>Steg 5:</strong> Ersätt <code className="bg-gray-200 px-1 rounded">your_openai_api_key_here</code></p>
-                    <p><strong>Steg 6:</strong> Starta om appen för att aktivera riktig AI!</p>
-                  </div>
-                  <div className="mt-3 p-2 bg-yellow-50 rounded border-l-4 border-yellow-400">
-                    <p className="text-xs text-yellow-800">
-                      💡 <strong>Tips:</strong> GPT-4o-mini kostar ~$0.001 per AI-råd. Claude-3-haiku som backup.
-                    </p>
-                  </div>
-                </div>
-              )}
-
               {/* AI Provider Status */}
-              {aiProvider !== 'demo' && (
-                <div className="bg-gradient-to-r from-green-100 to-blue-100 p-4 rounded-lg mb-4">
-                  <h3 className="font-semibold text-gray-800 mb-2 flex items-center gap-2">
-                    <Brain className="text-green-600" size={16} />
-                    ✅ Riktig AI aktiverad!
-                  </h3>
-                  <p className="text-sm text-gray-700">
-                    Använder {aiProvider === 'openai' ? '🤖 OpenAI GPT-4o-mini' : '🧠 Anthropic Claude-3-haiku'} för personliga hälsoråd.
-                  </p>
-                </div>
-              )}
+              <div className="bg-gradient-to-r from-green-100 to-blue-100 p-4 rounded-lg mb-4">
+                <h3 className="font-semibold text-gray-800 mb-2 flex items-center gap-2">
+                  <Brain className="text-green-600" size={16} />
+                  ✅ Riktig AI aktiverad!
+                </h3>
+                <p className="text-sm text-gray-700">
+                  Använder {aiProvider === 'openai' ? '🤖 OpenAI GPT-4o-mini' : aiProvider === 'claude' ? '🧠 Anthropic Claude-3-haiku' : '💎 Google Gemini'} för personliga hälsoråd.
+                </p>
+              </div>
               <div className="bg-white p-4 rounded-lg border">
                 <h3 className="font-semibold text-gray-800 mb-2">🏥 Hälsodata-integration</h3>
                 <div className="space-y-2 text-sm">
@@ -1318,10 +1298,6 @@ const HealthApp = () => {
                 <button className="bg-gradient-to-r from-green-500 to-blue-500 text-white p-3 rounded-lg text-left">
                   <div className="font-medium">🍎 Matfoto-igenkänning</div>
                   <div className="text-sm opacity-90">Ta foto av mat för automatisk kaloriberäkning</div>
-                </button>
-                <button className="bg-gradient-to-r from-purple-500 to-pink-500 text-white p-3 rounded-lg text-left">
-                  <div className="font-medium">📊 Kropp-scanning (demo)</div>
-                  <div className="text-sm opacity-90">Uppskatta kroppssammansättning via kamera</div>
                 </button>
                 <button className="bg-gradient-to-r from-orange-500 to-red-500 text-white p-3 rounded-lg text-left">
                   <div className="font-medium">🏃‍♀️ Rörelse-tracking</div>
@@ -1556,13 +1532,9 @@ const HealthApp = () => {
                 <Target className="text-green-600" size={16} />
                 🎯 AI-Fokus idag
               </h3>
-              <ul className="text-sm text-gray-700 space-y-1">
-                <li>• 💧 Drick 2.5L vatten (ökar förbränning med 10%)</li>
-                <li>• 🥗 Ät protein vid varje måltid (bevara muskelmassa)</li>
-                <li>• 🚶‍♀️ 15 min promenad efter middagen (förbättrar blodsockret)</li>
-                <li>• 😴 Sov 7-8h (viktigt för viktreglering)</li>
-                <li>• 📱 Synka telefondata för bättre AI-analys</li>
-              </ul>
+              <div className="text-sm text-gray-500 text-center py-2">
+                Logga aktivitetsdata för att få personliga fokus-uppgifter
+              </div>
             </div>
 
             <div className="bg-white rounded-lg p-4 shadow-sm">
@@ -1570,12 +1542,8 @@ const HealthApp = () => {
                 <Brain className="text-purple-600" size={16} />
                 💡 Personliga AI-insikter
               </h3>
-              <div className="text-sm text-gray-700 space-y-2">
-                <p><strong>Beteendemönster:</strong> Du äter minst kalorier på måndagar - använd det som "reset-dag"!</p>
-                <p><strong>Aktivitetstrender:</strong> 23% mer aktiv när du träcker mat - fortsätt med båda!</p>
-                <p><strong>Optimal timing:</strong> Dina bästa viktminskningsdagar följer höga proteindagar.</p>
-                <p><strong>Nästa nivå:</strong> Lägg till 15min styrketräning 2x/vecka för 30% snabbare resultat.</p>
-                <p><strong>Real-time:</strong> Hjärtfrekvens {realTimeHeartRate} bpm indikerar {realTimeHeartRate > 80 ? 'stress - ta deep breaths!' : 'lugn - perfekt för träning!'}</p>
+              <div className="text-sm text-gray-500 text-center py-2">
+                Använd AI-funktioner för att få personliga insikter baserat på din data
               </div>
             </div>
 
@@ -1589,15 +1557,15 @@ const HealthApp = () => {
                 </div>
                 <div>
                   <div className="text-pink-600">Framstegsscore</div>
-                  <div className="text-xl font-bold text-pink-800">94%</div>
+                  <div className="text-xl font-bold text-pink-800">0%</div>
                 </div>
                 <div>
                   <div className="text-purple-600">Telefon-synk</div>
-                  <div className="text-xl font-bold text-purple-800">{isOnline ? '✅' : '⏸️'}</div>
+                  <div className="text-xl font-bold text-purple-800">⏸️</div>
                 </div>
                 <div>
                   <div className="text-pink-600">Push-notiser</div>
-                  <div className="text-xl font-bold text-pink-800">{notificationsEnabled ? '🔔' : '🔕'}</div>
+                  <div className="text-xl font-bold text-pink-800">🔕</div>
                 </div>
               </div>
             </div>
@@ -1640,36 +1608,28 @@ const HealthApp = () => {
                 AI Provider Status
               </h2>
               <div className="grid grid-cols-2 gap-3">
-                <div className={`p-3 rounded-lg ${
+                <div className={`p-3 rounded-lg cursor-pointer ${
                   aiProvider === 'openai' ? 'bg-green-100 border-2 border-green-500' : 'bg-gray-100'
-                }`}>
+                }`} onClick={() => setAiProvider('openai')}>
                   <div className="font-medium text-sm">🤖 OpenAI GPT-4o-mini</div>
                   <div className="text-xs text-gray-600">
                     {aiProvider === 'openai' ? '✅ Aktiv' : '⏸️ Inaktiv'}
                   </div>
                 </div>
-                <div className={`p-3 rounded-lg ${
+                <div className={`p-3 rounded-lg cursor-pointer ${
                   aiProvider === 'claude' ? 'bg-blue-100 border-2 border-blue-500' : 'bg-gray-100'
-                }`}>
+                }`} onClick={() => setAiProvider('claude')}>
                   <div className="font-medium text-sm">🧠 Claude-3-haiku</div>
                   <div className="text-xs text-gray-600">
                     {aiProvider === 'claude' ? '✅ Aktiv' : '⏸️ Inaktiv'}
                   </div>
                 </div>
-                <div className={`p-3 rounded-lg ${
+                <div className={`p-3 rounded-lg cursor-pointer ${
                   aiProvider === 'gemini' ? 'bg-purple-100 border-2 border-purple-500' : 'bg-gray-100'
-                }`}>
+                }`} onClick={() => setAiProvider('gemini')}>
                   <div className="font-medium text-sm">💎 Google Gemini</div>
                   <div className="text-xs text-gray-600">
                     {aiProvider === 'gemini' ? '✅ Aktiv' : '⏸️ Inaktiv'}
-                  </div>
-                </div>
-                <div className={`p-3 rounded-lg ${
-                  aiProvider === 'demo' ? 'bg-yellow-100 border-2 border-yellow-500' : 'bg-gray-100'
-                }`}>
-                  <div className="font-medium text-sm">🏠 Demo Mode</div>
-                  <div className="text-xs text-gray-600">
-                    {aiProvider === 'demo' ? '✅ Aktiv' : '⏸️ Inaktiv'}
                   </div>
                 </div>
               </div>
@@ -1854,6 +1814,61 @@ const HealthApp = () => {
             </div>
           </div>
         )}
+      </div>
+
+      {/* Navigation Menu */}
+      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-4 py-2">
+        <div className="flex justify-around items-center">
+          <button 
+            onClick={() => setCurrentTab('dashboard')}
+            className={`flex flex-col items-center py-2 px-3 rounded-lg transition-colors ${
+              currentTab === 'dashboard' ? 'bg-blue-100 text-blue-600' : 'text-gray-600'
+            }`}
+          >
+            <div className="text-lg">📊</div>
+            <div className="text-xs mt-1">Dashboard</div>
+          </button>
+          
+          <button 
+            onClick={() => setCurrentTab('activity')}
+            className={`flex flex-col items-center py-2 px-3 rounded-lg transition-colors ${
+              currentTab === 'activity' ? 'bg-blue-100 text-blue-600' : 'text-gray-600'
+            }`}
+          >
+            <div className="text-lg">🏃</div>
+            <div className="text-xs mt-1">Aktivitet</div>
+          </button>
+          
+          <button 
+            onClick={() => setCurrentTab('nutrition')}
+            className={`flex flex-col items-center py-2 px-3 rounded-lg transition-colors ${
+              currentTab === 'nutrition' ? 'bg-blue-100 text-blue-600' : 'text-gray-600'
+            }`}
+          >
+            <div className="text-lg">🍎</div>
+            <div className="text-xs mt-1">Mat</div>
+          </button>
+          
+          <button 
+            onClick={() => setCurrentTab('ai')}
+            className={`flex flex-col items-center py-2 px-3 rounded-lg transition-colors ${
+              currentTab === 'ai' ? 'bg-blue-100 text-blue-600' : 'text-gray-600'
+            }`}
+          >
+            <div className="text-lg">🤖</div>
+            <div className="text-xs mt-1">AI Pro</div>
+          </button>
+          
+          <button 
+            onClick={() => setCurrentTab('donate')}
+            className={`flex flex-col items-center py-2 px-3 rounded-lg transition-colors ${
+              currentTab === 'donate' ? 'bg-green-100 text-green-600' : 'text-gray-600'
+            }`}
+          >
+            <div className="text-lg">🎁</div>
+            <div className="text-xs mt-1">Stöd</div>
+          </button>
+        </div>
       </div>
     </div>
   );
