@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar } from 'recharts';
-import { TrendingDown, Activity, Apple, MessageCircle, Plus, Loader2, Heart } from 'lucide-react';
+import { TrendingDown, Activity, Apple, MessageCircle, Plus, Loader2, Heart, Mic, MicOff } from 'lucide-react';
 import { useUser, createUser } from '@/lib/hooks/useUser';
 import { useWeightLogs, addWeightLog } from '@/lib/hooks/useWeight';
 import { useActivityLogs, addActivityLog } from '@/lib/hooks/useActivity';
@@ -12,6 +12,7 @@ import { useStreak } from '@/lib/hooks/useStreak';
 import { useStepCounter } from '@/lib/hooks/useStepCounter';
 import { useHealthGoals } from '@/lib/hooks/useHealthGoals';
 import { useCelebrationSounds } from '@/lib/hooks/useCelebrationSounds';
+import { useSpeechRecognition } from '@/lib/hooks/useSpeechRecognition';
 import { Confetti } from '@/components/Confetti';
 import { SuccessToast } from '@/components/SuccessToast';
 import { HealthDashboard } from '@/components/HealthDashboard';
@@ -49,6 +50,9 @@ export default function HealthApp() {
   const { stepData, isTracking, startTracking, stopTracking, addSteps } = useStepCounter();
   const { goals, progress, updateProgress, addWater, addWorkout, updateHeartRate, updateSleep } = useHealthGoals(userId || undefined);
   const { celebrate, checkWeightLoss, checkHealthyMeal, checkGoalReached, checkStreakMilestone, checkGoodHeartRate, checkGoodSleep } = useCelebrationSounds();
+  
+  // Speech recognition for Boris
+  const { isListening, transcript, interimTranscript, isSupported, startListening, stopListening, resetTranscript } = useSpeechRecognition();
 
   // Initialize user
   useEffect(() => {
@@ -84,6 +88,13 @@ export default function HealthApp() {
       }
     }
   }, [stepData]);
+
+  // Sync speech recognition transcript with AI message
+  useEffect(() => {
+    if (transcript) {
+      setAiMessage(transcript);
+    }
+  }, [transcript]);
 
   // Prepare chart data
   const weightChartData = weightLogs.map((log: any) => ({
@@ -659,9 +670,40 @@ export default function HealthApp() {
             </div>
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Fråga Boris
-                </label>
+                <div className="flex items-center justify-between mb-2">
+                  <label className="block text-sm font-medium text-gray-700">
+                    Fråga Boris
+                  </label>
+                  {isSupported && (
+                    <button
+                      onClick={() => {
+                        if (isListening) {
+                          stopListening();
+                        } else {
+                          resetTranscript();
+                          startListening();
+                        }
+                      }}
+                      className={`flex items-center gap-2 px-3 py-1.5 rounded-lg font-medium transition-all ${
+                        isListening
+                          ? 'bg-red-500 text-white hover:bg-red-600 animate-pulse'
+                          : 'bg-purple-100 text-purple-700 hover:bg-purple-200'
+                      }`}
+                    >
+                      {isListening ? (
+                        <>
+                          <MicOff size={16} />
+                          <span className="text-sm">Stoppa</span>
+                        </>
+                      ) : (
+                        <>
+                          <Mic size={16} />
+                          <span className="text-sm">🎤 Prata</span>
+                        </>
+                      )}
+                    </button>
+                  )}
+                </div>
                 <textarea
                   value={aiMessage}
                   onChange={(e) => setAiMessage(e.target.value)}
@@ -669,6 +711,17 @@ export default function HealthApp() {
                   rows={4}
                   className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent text-gray-900 placeholder:text-gray-400"
                 />
+                {isListening && (
+                  <div className="mt-2 p-3 bg-purple-50 rounded-lg border border-purple-200">
+                    <div className="flex items-center gap-2 mb-1">
+                      <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
+                      <span className="text-sm font-medium text-purple-700">Lyssnar...</span>
+                    </div>
+                    {interimTranscript && (
+                      <p className="text-sm text-gray-600 italic">{interimTranscript}</p>
+                    )}
+                  </div>
+                )}
               </div>
               <button
                 onClick={handleAskAI}
