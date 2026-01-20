@@ -1,6 +1,6 @@
 # SESSION_SUMMARY.md
 
-**Projekt:** HälsoPartner AI  
+**Projekt:** Boris Run  
 **Datum:** 2026-01-13  
 **Session:** Next.js-migrering + Backend-implementation  
 **Status:** ✅ Backend API fungerar med Neon Postgres
@@ -9,7 +9,7 @@
 
 ## 📋 Översikt
 
-HälsoPartner AI är en AI-driven hälsocoach-app som hjälper användare med:
+Boris Run är en AI-driven hälsocoach-app som hjälper användare med:
 - AI-coachning för hälsa och träning
 - Viktspårning och analys
 - Aktivitetsloggning (steg, träning)
@@ -71,7 +71,7 @@ HälsoPartner AI är en AI-driven hälsocoach-app som hjälper användare med:
    - `/api/alert` - Notifikationer ✅
 
 9. **Verifierade API-tester**
-   - Skapat användare: mats@halsopartner.se
+   - Skapat användare: mats@boris-run.se
    - Loggat aktivitet: Löpning 6.2km, 450 kcal
    - Loggat måltid: Havregrynsgröt med bär, 350 kcal
    - AI Coach-svar: OpenAI GPT-4o-mini fungerar med svenska råd
@@ -167,8 +167,8 @@ NEXT_PUBLIC_GEMINI_API_KEY=your_gemini_api_key_here
 
 ### Kommande (när backend implementeras):
 ```env
-DATABASE_URL=postgresql://...@neon.tech/halsopartner
-NEXT_PUBLIC_APP_URL=https://halsopartner.vercel.app
+DATABASE_URL=postgresql://...@neon.tech/boris-run
+NEXT_PUBLIC_APP_URL=https://boris-run.vercel.app
 ```
 
 **⚠️ OBS:** Lägg aldrig hemliga nycklar i repo eller docs-filer.
@@ -251,7 +251,7 @@ NEXT_PUBLIC_APP_URL=https://halsopartner.vercel.app
 
 ### Lokalt (Development):
 ```bash
-cd /Users/admin/hälsopartner/next-app
+cd /Users/admin/boris-run/next-app
 npm install
 npm run dev
 ```
@@ -278,8 +278,8 @@ npm run lint
 ## 📞 Support / Kontakt
 
 **Lead:** Mats Hamberg  
-**Projekt:** HälsoPartner AI  
-**Repo:** `/Users/admin/hälsopartner`
+**Projekt:** Boris Run  
+**Repo:** `/Users/admin/boris-run`
 
 ---
 

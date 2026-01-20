@@ -1,4 +1,4 @@
-# HälsoPartner AI
+# Boris Run
 
 En AI-driven hälsocoach-app som hjälper användare med personlig coaching, viktspårning, aktivitetsloggning och matanalys.
 
@@ -7,7 +7,7 @@ En AI-driven hälsocoach-app som hjälper användare med personlig coaching, vik
 ## 🚀 Live / Deploy
 - Production: Ej deployad ännu (planerad: Vercel)
 - Preview/Staging: http://localhost:3000 (lokal dev)
-- Repo: /Users/admin/hälsopartner
+- Repo: /Users/admin/boris-run
 
 ---
 
@@ -111,7 +111,7 @@ npx tsc --noEmit
 ## 🗂️ Projektstruktur
 
 ```
-/Users/admin/hälsopartner/
+/Users/admin/boris-run/
 ├── SESSION_SUMMARY.md          # Source of Truth
 ├── session_memory.md           # Projektets hjärna
 ├── handover.md                 # Snapshot + checklista
@@ -168,7 +168,7 @@ npx tsc --noEmit
 ## 🆘 Support / Kontakt
 
 **Lead:** Mats Hamberg  
-**Projekt:** HälsoPartner AI  
-**Repo:** /Users/admin/hälsopartner
+**Projekt:** Boris Run  
+**Repo:** /Users/admin/boris-run
 
 Om något är oklart: börja i `/SESSION_SUMMARY.md`

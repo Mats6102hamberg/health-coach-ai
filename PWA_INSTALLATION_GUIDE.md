@@ -1,4 +1,4 @@
-# 📱 PWA-installationsguide för HälsoPartner AI
+# 📱 PWA-installationsguide för Boris Run
 
 ## Vad är en PWA?
 En Progressive Web App (PWA) är en webbapp som fungerar som en riktig mobilapp. Du kan installera den på din telefon och få:
@@ -11,7 +11,7 @@ En Progressive Web App (PWA) är en webbapp som fungerar som en riktig mobilapp.
 
 ### Steg 1: Öppna appen
 1. Öppna Safari på din iPhone
-2. Gå till HälsoPartner AI-appen
+2. Gå till Boris Run-appen
 3. Logga in eller registrera dig
 
 ### Steg 2: Installera
@@ -29,7 +29,7 @@ En Progressive Web App (PWA) är en webbapp som fungerar som en riktig mobilapp.
 
 ### Steg 1: Öppna appen
 1. Öppna Chrome på din Android-telefon
-2. Gå till HälsoPartner AI-appen
+2. Gå till Boris Run-appen
 3. Logga in eller registrera dig
 
 ### Steg 2: Installera
@@ -94,7 +94,7 @@ En Progressive Web App (PWA) är en webbapp som fungerar som en riktig mobilapp.
 
 ### Notifikationer fungerar inte:
 1. Gå till telefonens inställningar
-2. Hitta "HälsoPartner AI" under appar
+2. Hitta "Boris Run" under appar
 3. Aktivera notifikationer manuellt
 
 ### Appen laddas långsamt:
@@ -128,4 +128,4 @@ En Progressive Web App (PWA) är en webbapp som fungerar som en riktig mobilapp.
 
 **Lycka till med din AI-drivna hälsoresa! 🚀💪**
 
-*HälsoPartner AI - Din personliga AI-hälsocoach*
+*Boris Run - Din personliga AI-hälsocoach*

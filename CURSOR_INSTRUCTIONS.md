@@ -42,7 +42,7 @@
 - `⌘ + Enter` / `Ctrl + Enter` - Commit
 - `⌘ + Shift + P` → `Git: Push` - Pusha till remote
 
-## Tips för HälsoPartner AI-projektet
+## Tips för Boris Run-projektet
 
 ### När du skapar nya filer:
 1. **Components:** Lägg i `src/components/`
@@ -70,4 +70,4 @@ src/
 
 ---
 
-*Skapad för HälsoPartner AI-projektet*
+*Skapad för Boris Run-projektet*

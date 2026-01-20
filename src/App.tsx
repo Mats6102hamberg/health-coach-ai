@@ -618,7 +618,7 @@ const HealthApp = () => {
       <div className="bg-gradient-to-r from-blue-600 to-green-600 text-white p-4">
         <h1 className="text-2xl font-bold flex items-center gap-2">
           <Brain className="text-yellow-300" size={24} />
-          HälsoPartner AI
+          Boris Run
         </h1>
         <p className="text-blue-100">Din personliga AI-hälsocoach</p>
       </div>
@@ -1053,7 +1053,7 @@ const HealthApp = () => {
                 Stöd appen med gåva
               </h2>
               <p className="text-gray-700 mb-6">
-                Hjälp oss att hålla HälsoPartner AI gratis för alla! Din donation hjälper till att täcka 
+                Hjälp oss att hålla Boris Run gratis för alla! Din donation hjälper till att täcka 
                 AI-kostnader och utveckla nya funktioner.
               </p>
               
@@ -1138,7 +1138,7 @@ const HealthApp = () => {
                     📱 Installera som app
                   </h3>
                   <p className="text-sm text-gray-700 mb-3">
-                    Installera HälsoPartner AI på din telefon för bästa upplevelse! Få push-notifikationer, offline-funktionalitet och app-liknande upplevelse.
+                    Installera Boris Run på din telefon för bästa upplevelse! Få push-notifikationer, offline-funktionalitet och app-liknande upplevelse.
                   </p>
                   
                   <div className="space-y-2 mb-3">
@@ -1183,7 +1183,7 @@ const HealthApp = () => {
                     ✅ App installerad!
                   </h3>
                   <p className="text-sm text-gray-700">
-                    HälsoPartner AI är installerad på din telefon. Du får nu push-notifikationer och offline-funktionalitet!
+                    Boris Run är installerad på din telefon. Du får nu push-notifikationer och offline-funktionalitet!
                   </p>
                 </div>
               )}

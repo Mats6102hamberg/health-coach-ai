@@ -1,10 +1,10 @@
-# 🚀 Distribuera HälsoPartner AI
+# 🚀 Distribuera Boris Run
 
 ## Option 1: Netlify (Gratis, 5 min setup)
 1. Bygg appen: `npm run build`
 2. Gå till [netlify.com](https://netlify.com)
 3. Dra `dist`-mappen till Netlify
-4. Din app får en URL som: `https://halsopartner-ai.netlify.app`
+4. Din app får en URL som: `https://boris-run-ai.netlify.app`
 
 ## Option 2: Vercel (Gratis, GitHub integration)
 1. Pusha koden till GitHub
@@ -19,7 +19,7 @@
 
 ## Environment Variables för produktion:
 - VITE_OPENAI_API_KEY (din riktiga nyckel)
-- VITE_APP_NAME=HälsoPartner AI
+- VITE_APP_NAME=Boris Run
 - VITE_PREFERRED_AI_PROVIDER=auto
 
 ## 📱 Användarinstruktioner:

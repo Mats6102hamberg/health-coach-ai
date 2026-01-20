@@ -15,13 +15,13 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "HälsoPartner AI - Din AI-hälsocoach",
+  title: "Boris Run - Din AI-hälsocoach",
   description: "Personlig AI-hälsocoach med måltidsplanering, träningsråd och hälsoprognoser",
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
-    title: "HälsoPartner AI",
+    title: "Boris Run",
   },
 };
 

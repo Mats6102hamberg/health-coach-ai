@@ -9,7 +9,7 @@ export default function LandingPage() {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <span className="text-4xl">🎩</span>
-            <h1 className="text-2xl font-bold text-gray-800">HälsoPartner AI</h1>
+            <h1 className="text-2xl font-bold text-gray-800">Boris Run</h1>
           </div>
           <div className="flex gap-3">
             <Link
@@ -132,7 +132,7 @@ export default function LandingPage() {
       {/* Footer */}
       <footer className="container mx-auto px-4 py-8 border-t border-gray-200">
         <div className="text-center text-gray-600">
-          <p>© 2026 HälsoPartner AI. Skapad med ❤️ för din hälsa.</p>
+          <p>© 2026 Boris Run. Skapad med ❤️ för din hälsa.</p>
         </div>
       </footer>
     </div>

@@ -36,7 +36,7 @@ export default function OnboardingPage() {
         <div className="bg-white rounded-2xl shadow-xl p-8">
           <div className="text-center mb-8">
             <h1 className="text-4xl font-bold text-gray-800 mb-2">
-              🎩 Välkommen till HälsoPartner AI!
+              🎩 Välkommen till Boris Run!
             </h1>
             <p className="text-gray-600">
               Hej {user?.firstName || 'där'}! Låt oss sätta upp din profil.
@@ -70,7 +70,7 @@ export default function OnboardingPage() {
                   type="number"
                   value={formData.weight}
                   onChange={(e) => setFormData({ ...formData, weight: e.target.value })}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl bg-white text-gray-900 text-lg font-medium placeholder-gray-500 focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
                   placeholder="75"
                 />
               </div>
@@ -83,7 +83,7 @@ export default function OnboardingPage() {
                   type="number"
                   value={formData.height}
                   onChange={(e) => setFormData({ ...formData, height: e.target.value })}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl bg-white text-gray-900 text-lg font-medium placeholder-gray-500 focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
                   placeholder="175"
                 />
               </div>
@@ -96,7 +96,7 @@ export default function OnboardingPage() {
                   type="number"
                   value={formData.age}
                   onChange={(e) => setFormData({ ...formData, age: e.target.value })}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl bg-white text-gray-900 text-lg font-medium placeholder-gray-500 focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
                   placeholder="30"
                 />
               </div>

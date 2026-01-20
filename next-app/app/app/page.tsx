@@ -36,6 +36,11 @@ export default function HealthApp() {
   const [toastIcon, setToastIcon] = useState('✅');
   const [earnedXP, setEarnedXP] = useState(0);
 
+  // Boris modal states
+  const [showBorisModal, setShowBorisModal] = useState(false);
+  const [borisResponse, setBorisResponse] = useState('');
+  const [borisProvider, setBorisProvider] = useState('');
+
   // Get userId from Clerk
   const userId = user?.id || null;
 
@@ -71,7 +76,7 @@ export default function HealthApp() {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50 flex items-center justify-center">
         <div className="text-center">
-          <h1 className="text-3xl font-bold text-gray-800 mb-4">Välkommen till HälsoPartner AI</h1>
+          <h1 className="text-3xl font-bold text-gray-800 mb-4">Välkommen till Boris Run</h1>
           <p className="text-gray-600 mb-6">Logga in för att komma åt din hälsodata</p>
         </div>
       </div>
@@ -212,9 +217,14 @@ export default function HealthApp() {
     };
     const response = await askAI(userId, aiMessage, context);
     if (response) {
-      alert(`AI Coach (${response.provider}):\n\n${response.response}`);
+      setBorisResponse(response.response);
+      setBorisProvider(response.provider);
+      setShowBorisModal(true);
     }
     setAiMessage('');
+    if (isListening) {
+      stopListening();
+    }
   };
 
   return (
@@ -233,7 +243,7 @@ export default function HealthApp() {
         {/* Header */}
         <div className="bg-white rounded-2xl shadow-xl p-6 mb-6">
           <div className="flex items-center justify-between mb-2">
-            <h1 className="text-3xl font-bold text-gray-800">HälsoPartner AI</h1>
+            <h1 className="text-3xl font-bold text-gray-800">Boris Run</h1>
             <UserButton afterSignOutUrl="/sign-in" />
           </div>
           <p className="text-gray-600">Din personliga AI-hälsocoach</p>
@@ -501,7 +511,7 @@ export default function HealthApp() {
                   value={weightInput}
                   onChange={(e) => setWeightInput(e.target.value)}
                   placeholder="85.5"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl bg-white text-gray-900 text-lg font-medium placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 />
               </div>
               <button
@@ -551,7 +561,7 @@ export default function HealthApp() {
                   value={activityType}
                   onChange={(e) => setActivityType(e.target.value)}
                   placeholder="Löpning, Gym, Promenad..."
-                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl bg-white text-gray-900 text-lg font-medium placeholder-gray-500 focus:ring-2 focus:ring-green-500 focus:border-green-500"
                 />
               </div>
               <div>
@@ -561,7 +571,7 @@ export default function HealthApp() {
                   value={activitySteps}
                   onChange={(e) => setActivitySteps(e.target.value)}
                   placeholder="8500"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl bg-white text-gray-900 text-lg font-medium placeholder-gray-500 focus:ring-2 focus:ring-green-500 focus:border-green-500"
                 />
               </div>
               <button
@@ -614,7 +624,7 @@ export default function HealthApp() {
                   value={foodName}
                   onChange={(e) => setFoodName(e.target.value)}
                   placeholder="Havregrynsgröt med bär"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl bg-white text-gray-900 text-lg font-medium placeholder-gray-500 focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
                 />
               </div>
               <div>
@@ -624,7 +634,7 @@ export default function HealthApp() {
                   value={foodCalories}
                   onChange={(e) => setFoodCalories(e.target.value)}
                   placeholder="350"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl bg-white text-gray-900 text-lg font-medium placeholder-gray-500 focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
                 />
               </div>
               <button
@@ -716,7 +726,7 @@ export default function HealthApp() {
                   onChange={(e) => setAiMessage(e.target.value)}
                   placeholder="Ge mig matråd för idag... / Vad tycker Boris om min träning?"
                   rows={4}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent text-gray-900 placeholder:text-gray-400"
+                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl bg-white text-gray-900 text-lg font-medium placeholder-gray-500 focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
                 />
                 {isListening && (
                   <div className="mt-2 p-3 bg-purple-50 rounded-lg border border-purple-200">
@@ -763,6 +773,47 @@ export default function HealthApp() {
           </div>
         )}
       </div>
+
+      {/* Boris Response Modal */}
+      {showBorisModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50" onClick={() => setShowBorisModal(false)}>
+          <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[80vh] overflow-hidden" onClick={(e) => e.stopPropagation()}>
+            {/* Modal Header */}
+            <div className="flex items-center gap-3 p-6 border-b border-gray-200 bg-gradient-to-r from-purple-50 to-pink-50">
+              <span className="text-4xl">🎩</span>
+              <div className="flex-1">
+                <h3 className="text-2xl font-bold text-gray-900">Boris säger:</h3>
+                <p className="text-sm text-gray-600">AI Coach ({borisProvider})</p>
+              </div>
+              <button
+                onClick={() => setShowBorisModal(false)}
+                className="text-gray-400 hover:text-gray-600 transition-colors"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            {/* Modal Content */}
+            <div className="p-6 overflow-y-auto max-h-[calc(80vh-180px)]">
+              <div className="prose prose-sm max-w-none text-gray-800 leading-relaxed whitespace-pre-wrap">
+                {borisResponse}
+              </div>
+            </div>
+
+            {/* Modal Footer */}
+            <div className="p-6 border-t border-gray-200 bg-gray-50">
+              <button
+                onClick={() => setShowBorisModal(false)}
+                className="w-full py-3 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-semibold rounded-xl transition-all shadow-lg"
+              >
+                Stäng
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

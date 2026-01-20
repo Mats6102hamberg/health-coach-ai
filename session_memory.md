@@ -2,14 +2,14 @@
 
 ## Projekt
 - Namn: Parviz Skrivrum
-- Repo/Path: /Users/admin/hälsopartner
+- Repo/Path: /Users/admin/boris-run
 - Startdatum: 2026-01-12
 - Senast uppdaterad: 2026-01-13
 
 ---
 
 ## Kort sammanfattning (max 10 rader)
-En React/Tailwind-baserad hälsoapp ("HälsoPartner AI") med AI-coaching, vikt- och aktivitetsanalys samt Recharts-visualisering. Just nu pågår migrering från Vite till Next.js 14 (App Router) med Tailwind 4, PWA-stöd och kommande Prisma/Neon-backend, samtidigt som dokumentation och processer hålls uppdaterade.
+En React/Tailwind-baserad hälsoapp ("Boris Run") med AI-coaching, vikt- och aktivitetsanalys samt Recharts-visualisering. Just nu pågår migrering från Vite till Next.js 14 (App Router) med Tailwind 4, PWA-stöd och kommande Prisma/Neon-backend, samtidigt som dokumentation och processer hålls uppdaterade.
 
 ---
 

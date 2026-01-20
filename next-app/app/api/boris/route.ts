@@ -264,7 +264,7 @@ async function handleDashboardGet(userId: string): Promise<ApiResponse> {
 // PROTECTED: List achievements
 async function handleAchievementList(userId: string): Promise<ApiResponse> {
   try {
-    // TODO: Create AchievementEvent model in Prisma schema:
+    // TODO: Create AchievementEvent model in Prisma schema for persistent achievements:
     // model AchievementEvent {
     //   id          String   @id @default(cuid())
     //   userId      String
@@ -273,7 +273,7 @@ async function handleAchievementList(userId: string): Promise<ApiResponse> {
     //   user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
     // }
 
-    // For now, return mock achievements based on user data
+    // Dynamically calculate achievements based on real user activity data
     const activityCount = await prisma.activityLog.count({ where: { userId } })
     const weightCount = await prisma.weightLog.count({ where: { userId } })
     const mealCount = await prisma.mealLog.count({ where: { userId } })

@@ -1,6 +1,6 @@
-const CACHE_NAME = 'halsopartner-v3';
-const STATIC_CACHE = 'halsopartner-static-v3';
-const DYNAMIC_CACHE = 'halsopartner-dynamic-v3';
+const CACHE_NAME = 'boris-run-v1';
+const STATIC_CACHE = 'boris-run-static-v1';
+const DYNAMIC_CACHE = 'boris-run-dynamic-v1';
 
 const urlsToCache = [
   '/',
@@ -121,7 +121,7 @@ self.addEventListener('push', (event) => {
   };
 
   event.waitUntil(
-    self.registration.showNotification('HälsoPartner AI', options)
+    self.registration.showNotification('Boris Run', options)
   );
 });
 

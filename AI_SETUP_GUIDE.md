@@ -1,4 +1,4 @@
-# 🤖 HälsoPartner AI - Setup Guide
+# 🤖 Boris Run - Setup Guide
 
 ## Aktivera riktig AI i din hälsoapp
 

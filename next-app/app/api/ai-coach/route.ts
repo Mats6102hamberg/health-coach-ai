@@ -13,9 +13,10 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const openaiKey = process.env.NEXT_PUBLIC_OPENAI_API_KEY
-    const claudeKey = process.env.NEXT_PUBLIC_ANTHROPIC_API_KEY
-    const geminiKey = process.env.NEXT_PUBLIC_GEMINI_API_KEY
+    // Server-side only API keys (säkra - exponeras INTE till klienten)
+    const openaiKey = process.env.OPENAI_API_KEY || process.env.NEXT_PUBLIC_OPENAI_API_KEY
+    const claudeKey = process.env.ANTHROPIC_API_KEY || process.env.NEXT_PUBLIC_ANTHROPIC_API_KEY
+    const geminiKey = process.env.GEMINI_API_KEY || process.env.NEXT_PUBLIC_GEMINI_API_KEY
 
     let aiProvider = 'none'
     let aiResponse = ''
@@ -196,7 +197,7 @@ Exempel på Boris-språk:
       aiResponse = data.candidates[0]?.content?.parts[0]?.text || 'Kunde inte generera svar.'
     } else {
       return NextResponse.json(
-        { error: 'No AI API key configured. Please add NEXT_PUBLIC_OPENAI_API_KEY, NEXT_PUBLIC_ANTHROPIC_API_KEY, or NEXT_PUBLIC_GEMINI_API_KEY to .env' },
+        { error: 'No AI API key configured. Please add OPENAI_API_KEY, ANTHROPIC_API_KEY, or GEMINI_API_KEY to .env' },
         { status: 503 }
       )
     }

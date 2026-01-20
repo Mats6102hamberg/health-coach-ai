@@ -72,4 +72,4 @@ Klistra in följande JSON-kod i filen:
 
 ---
 
-*Skapad för HälsoPartner AI-projektet*
+*Skapad för Boris Run-projektet*

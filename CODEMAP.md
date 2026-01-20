@@ -1,4 +1,4 @@
-# 🗺️ HälsoPartner - Kodkarta
+# 🗺️ Boris Run - Kodkarta
 
 En komplett översikt över projektets struktur och arkitektur.
 
@@ -7,7 +7,7 @@ En komplett översikt över projektets struktur och arkitektur.
 ## 📁 Projektstruktur
 
 ```
-hälsopartner/
+boris-run/
 ├── next-app/                    # Next.js applikation
 │   ├── app/                     # App Router (Next.js 16)
 │   │   ├── page.tsx            # 🏠 Huvudkomponent (Dashboard, Boris, Hälsa, etc.)
@@ -582,7 +582,7 @@ NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=...
 
 ## 🎉 Sammanfattning
 
-HälsoPartner är en modern hälsoapp byggd med Next.js 16, React 19, och TypeScript. Appen kombinerar traditionell hälsotracking (vikt, aktivitet, mat) med gamification (streak, XP, achievements) och AI-coaching (Boris). Användare kan prata med Boris via röstinput, spåra dagliga hälsomål, och få visuell feedback (konfetti, toast, ljud) vid framsteg.
+Boris Run är en modern hälsoapp byggd med Next.js 16, React 19, och TypeScript. Appen kombinerar traditionell hälsotracking (vikt, aktivitet, mat) med gamification (streak, XP, achievements) och AI-coaching (Boris). Användare kan prata med Boris via röstinput, spåra dagliga hälsomål, och få visuell feedback (konfetti, toast, ljud) vid framsteg.
 
 **Teknisk stack:**
 - Frontend: Next.js 16 + React 19 + TailwindCSS

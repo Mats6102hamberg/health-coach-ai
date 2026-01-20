@@ -1,7 +1,8 @@
 // Push Notification Service
 export class NotificationService {
   private registration: ServiceWorkerRegistration | null = null;
-  // private vapidPublicKey = 'demo-vapid-key'; // I verkligheten: VAPID key från server
+  // TODO: Configure VAPID keys for production push notifications
+  // private vapidPublicKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
 
   async initialize() {
     if ('serviceWorker' in navigator && 'PushManager' in window) {
@@ -223,7 +224,8 @@ export class NotificationService {
         body: JSON.stringify(subscription)
       });
     } catch (error) {
-      console.log('Demo mode - subscription sparad lokalt');
+      // Push subscription API endpoint not available - subscription stored locally
+      console.log('Push subscription: Backend endpoint not configured');
     }
   }
 
